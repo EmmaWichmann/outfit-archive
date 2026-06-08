@@ -37,9 +37,12 @@ const suggestionResults = document.getElementById("suggestion-results");
 const itemCount = document.getElementById("item-count");
 const outfitCount = document.getElementById("outfit-count");
 const favoriteCount = document.getElementById("favorite-count");
-const practiceOutfitTrack = document.getElementById("practice-outfit-track");
-const previousPracticeOutfit = document.getElementById("previous-practice-outfit");
-const nextPracticeOutfit = document.getElementById("next-practice-outfit");
+const practiceTopImage = document.getElementById("practice-top-image");
+const practiceTopName = document.getElementById("practice-top-name");
+const practiceBottomImage = document.getElementById("practice-bottom-image");
+const practiceBottomName = document.getElementById("practice-bottom-name");
+const practicePieceButtons = document.querySelectorAll("[data-cycle-piece]");
+const practicePresetButtons = document.querySelectorAll("[data-practice-preset]");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
@@ -49,6 +52,18 @@ let photoData = "";
 let draggedItemId = "";
 let canvasPieces = [];
 let canvasDragId = "";
+let practiceTopIndex = 0;
+let practiceBottomIndex = 0;
+
+const practiceTops = [
+  { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png" },
+  { name: "Rust knit top", photo: "images/practice/rust-top.png" },
+];
+
+const practiceBottoms = [
+  { name: "Denim shorts", photo: "images/practice/denim-shorts.png" },
+  { name: "Cream plaid skirt", photo: "images/practice/plaid-skirt.png" },
+];
 
 renderApp();
 showView(getViewFromHash());
@@ -242,12 +257,18 @@ suggestionForm.addEventListener("submit", (event) => {
   renderSuggestions(occasionInput.value);
 });
 
-previousPracticeOutfit.addEventListener("click", () => {
-  scrollPracticeOutfits(-1);
+practicePieceButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    cyclePracticePiece(button.dataset.cyclePiece, Number(button.dataset.direction));
+  });
 });
 
-nextPracticeOutfit.addEventListener("click", () => {
-  scrollPracticeOutfits(1);
+practicePresetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    practiceTopIndex = Number(button.dataset.practicePreset);
+    practiceBottomIndex = Number(button.dataset.practicePreset);
+    renderPracticeOutfit();
+  });
 });
 
 function showView(viewName) {
@@ -578,18 +599,30 @@ function getViewFromHash() {
   return window.location.hash.replace("#", "") || "closet";
 }
 
-function scrollPracticeOutfits(direction) {
-  const firstCard = practiceOutfitTrack.querySelector(".practice-outfit-card");
-
-  if (!firstCard) {
-    return;
+function cyclePracticePiece(pieceType, direction) {
+  if (pieceType === "top") {
+    practiceTopIndex = wrapIndex(practiceTopIndex + direction, practiceTops.length);
+  } else {
+    practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, practiceBottoms.length);
   }
 
-  const gap = 16;
-  practiceOutfitTrack.scrollBy({
-    left: direction * (firstCard.offsetWidth + gap),
-    behavior: "smooth",
-  });
+  renderPracticeOutfit();
+}
+
+function renderPracticeOutfit() {
+  const top = practiceTops[practiceTopIndex];
+  const bottom = practiceBottoms[practiceBottomIndex];
+
+  practiceTopImage.src = top.photo;
+  practiceTopImage.alt = top.name;
+  practiceTopName.textContent = top.name;
+  practiceBottomImage.src = bottom.photo;
+  practiceBottomImage.alt = bottom.name;
+  practiceBottomName.textContent = bottom.name;
+}
+
+function wrapIndex(index, length) {
+  return (index + length) % length;
 }
 
 function saveItems() {
