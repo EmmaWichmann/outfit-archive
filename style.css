@@ -271,11 +271,7 @@ h3 {
 
 .primary-button,
 .primary-button span {
-  color: #fffdf7;
-}
-
-#open-item-dialog span:last-child::after {
-  content: "Add a piece";
+  color: #f3c2c8;
 }
 
 .summary-strip {
