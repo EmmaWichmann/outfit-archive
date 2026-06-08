@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A private, browser-based digital wardrobe for cataloging clothes and building outfits."
+    />
+    <title>Outfit Archive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#top" aria-label="Outfit Archive home">
+          <span class="brand-mark">OA</span>
+          <span class="brand-copy">
+            <strong>Outfit Archive</strong>
+            <small>private wardrobe study</small>
+          </span>
+        </a>
+
+        <nav class="primary-nav" aria-label="App views">
+          <button class="nav-button active" data-view-target="closet" type="button">
+            <span>01</span><strong></strong>
+          </button>
+          <button class="nav-button" data-view-target="builder" type="button">
+            <span>02</span><strong></strong>
+          </button>
+          <button class="nav-button" data-view-target="suggestions" type="button">
+            <span>03</span><strong></strong>
+          </button>
+        </nav>
+
+        <article class="tech-card">
+          <p class="eyebrow">Tech Stack</p>
+          <dl>
+            <div><dt>HTML</dt><dd>Gives the app its structure.</dd></div>
+            <div><dt>CSS</dt><dd>Controls colors, layout, and appearance.</dd></div>
+            <div><dt>JavaScript</dt><dd>Makes the app interactive and saves data.</dd></div>
+          </dl>
+        </article>
+
+        <p class="privacy-note">
+          Your wardrobe stays in this browser. Nothing is uploaded to a server.
+        </p>
+      </aside>
+
+      <main class="main-content" id="top">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow"></p>
+            <h1></h1>
+          </div>
+          <button class="primary-button" id="open-item-dialog" type="button">
+            <span aria-hidden="true">＋</span><span></span>
+          </button>
+        </header>
+
+        <section class="summary-strip" aria-label="Wardrobe summary">
+          <article>
+            <span id="item-count">0</span>
+            <p></p>
+          </article>
+          <article>
+            <span id="outfit-count">0</span>
+            <p></p>
+          </article>
+          <article>
+            <span id="favorite-count">0</span>
+            <p></p>
+          </article>
+          <blockquote>
+            “Shop your own wardrobe.”
+          </blockquote>
+        </section>
+
+        <!--
+          COMPONENT FALLBACK:
+          These sections mirror /components/*.html. They are included directly
+          so the app works when index.html is opened without a local web server.
+        -->
+
+        <section class="workspace-section" id="closet-section" data-view="closet">
+          <header class="section-intro">
+            <p class="eyebrow"></p>
+            <h2></h2>
+            <p></p>
+          </header>
+
+          <div class="closet-toolbar">
+            <label class="search-field">
+              <span class="visually-hidden"></span>
+              <input id="search-input" type="search" placeholder="Search your archive..." />
+            </label>
+            <div class="category-filters" id="category-filters" aria-label="Filter categories">
+              <button class="filter-button active" data-category="All" type="button">All</button>
+              <button class="filter-button" data-category="Tops" type="button">Tops</button>
+              <button class="filter-button" data-category="Bottoms" type="button">Bottoms</button>
+              <button class="filter-button" data-category="Shoes" type="button">Shoes</button>
+              <button class="filter-button" data-category="Accessories" type="button">Accessories</button>
+              <button class="filter-button" data-category="Full Outfits" type="button">Full Outfits</button>
+            </div>
+          </div>
+
+          <div class="closet-grid" id="closet-grid"></div>
+          <div class="empty-state" id="closet-empty">
+            <span class="empty-monogram">OA</span>
+            <h3>Your archive is ready.</h3>
+            <p>Add your first piece to begin building a private visual wardrobe.</p>
+            <button class="text-button" data-open-dialog type="button"></button>
+          </div>
+        </section>
+
+        <section class="workspace-section" id="mix-match-section" data-view="builder" hidden>
+          <header class="section-intro">
+            <p class="eyebrow"></p>
+            <h2></h2>
+            <p></p>
+          </header>
+
+          <div class="builder-layout">
+            <aside class="piece-tray">
+              <div class="tray-heading">
+                <h3></h3>
+                <p>Drag pieces onto the canvas.</p>
+              </div>
+              <div class="tray-items" id="tray-items"></div>
+            </aside>
+
+            <div class="outfit-canvas-wrap">
+              <div class="outfit-canvas" id="outfit-canvas" tabindex="0">
+                <div class="canvas-note">
+                  <span>+</span>
+                  <p>Drop clothing pieces here</p>
+                </div>
+              </div>
+              <form class="save-outfit-form" id="save-outfit-form">
+                <label>
+                  <span></span>
+                  <input id="outfit-name" type="text" placeholder="Name this look..." required />
+                </label>
+                <button class="primary-button" type="submit"><span></span></button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="workspace-section" id="suggestions-section" data-view="suggestions" hidden>
+          <header class="section-intro">
+            <p class="eyebrow"></p>
+            <h2></h2>
+            <p></p>
+          </header>
+
+          <div class="suggestion-layout">
+            <form class="suggestion-form" id="suggestion-form">
+              <label>
+                <span></span>
+                <textarea
+                  id="occasion-input"
+                  rows="5"
+                  placeholder="Try: relaxed dinner, confident interview, soft vacation morning..."
+                  required
+                ></textarea>
+              </label>
+              <button class="primary-button" type="submit"><span></span></button>
+              <p class="form-hint">
+                Suggestions are generated locally by matching words, colors, and categories.
+              </p>
+            </form>
+            <div class="suggestion-results" id="suggestion-results">
+              <div class="empty-state compact">
+                <span class="empty-monogram">AI</span>
+                <h3>Your archive will guide the suggestion.</h3>
+                <p>Add clothing first, then describe how you want to feel.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="item-dialog" id="item-dialog">
+      <form class="item-form" id="item-form">
+        <header>
+          <div>
+            <p class="eyebrow"></p>
+            <h2></h2>
+          </div>
+          <button class="icon-button" id="close-item-dialog" type="button" aria-label="Close">×</button>
+        </header>
+
+        <label class="upload-field">
+          <span></span>
+          <input id="item-photo" type="file" accept="image/*" required />
+          <span class="upload-prompt">
+            <strong>Choose a clothing photo</strong>
+            <small>JPG, PNG, or WEBP</small>
+          </span>
+          <img id="photo-preview" alt="Selected clothing preview" hidden />
+        </label>
+
+        <div class="form-grid">
+          <label>
+            <span></span>
+            <input id="item-name" type="text" placeholder="e.g. Linen wrap blouse" required />
+          </label>
+          <label>
+            <span></span>
+            <select id="item-category" required>
+              <option value="">Choose one...</option>
+              <option>Tops</option>
+              <option>Bottoms</option>
+              <option>Shoes</option>
+              <option>Accessories</option>
+              <option>Full Outfits</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          <span></span>
+          <input id="item-colors" type="text" placeholder="sage, ivory, warm brown" required />
+        </label>
+
+        <label>
+          <span></span>
+          <input id="item-tags" type="text" placeholder="work, casual, summer, date night" />
+        </label>
+
+        <button class="primary-button full-width" type="submit"><span></span></button>
+      </form>
+    </dialog>
+
+    <template id="item-card-template">
+      <article class="outfit-card" draggable="true">
+        <div class="card-image-wrap">
+          <img class="card-image" alt="" />
+          <button class="favorite-button" type="button" aria-label="Favorite item">♡</button>
+        </div>
+        <div class="card-body">
+          <div class="card-heading">
+            <h3 class="card-name"></h3>
+            <span class="card-category"></span>
+          </div>
+          <div class="tag-list"></div>
+          <button class="delete-item text-button" type="button"></button>
+        </div>
+      </article>
+    </template>
+  </body>
+</html>
