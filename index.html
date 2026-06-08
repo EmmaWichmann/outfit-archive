@@ -120,7 +120,12 @@
                 <strong id="practice-outfits-title">California Closet Practice</strong>
               </header>
 
-              <div class="piece-selector">
+              <div class="outfit-mode-switch" aria-label="Choose outfit type">
+                <button class="active" data-outfit-mode="separates" type="button">Top + Bottom</button>
+                <button data-outfit-mode="dress" type="button">Dress</button>
+              </div>
+
+              <div class="piece-selector" data-separates-level>
                 <p class="piece-label">Tops</p>
                 <img
                   class="selector-image"
@@ -135,7 +140,7 @@
                 </div>
               </div>
 
-              <div class="piece-selector">
+              <div class="piece-selector" data-separates-level>
                 <p class="piece-label">Bottoms</p>
                 <img
                   class="selector-image"
@@ -150,9 +155,39 @@
                 </div>
               </div>
 
+              <div class="piece-selector dress-selector" data-dress-level hidden>
+                <p class="piece-label">Dress</p>
+                <img
+                  class="selector-image selector-image-tall"
+                  id="practice-dress-image"
+                  src="images/practice/rust-shirt-dress.png"
+                  alt="Rust shirt dress"
+                />
+                <div class="selector-controls">
+                  <button data-cycle-piece="dress" data-direction="-1" type="button" aria-label="Previous dress">◀</button>
+                  <span id="practice-dress-name">Rust shirt dress</span>
+                  <button data-cycle-piece="dress" data-direction="1" type="button" aria-label="Next dress">▶</button>
+                </div>
+              </div>
+
+              <div class="piece-selector shoe-selector">
+                <p class="piece-label">Shoes</p>
+                <img
+                  class="selector-image selector-image-shoes"
+                  id="practice-shoe-image"
+                  src="images/practice/tan-sandals.png"
+                  alt="Tan sandals"
+                />
+                <div class="selector-controls">
+                  <button data-cycle-piece="shoe" data-direction="-1" type="button" aria-label="Previous shoes">◀</button>
+                  <span id="practice-shoe-name">Tan sandals</span>
+                  <button data-cycle-piece="shoe" data-direction="1" type="button" aria-label="Next shoes">▶</button>
+                </div>
+              </div>
+
               <div class="practice-presets" aria-label="Practice outfit presets">
                 <button data-practice-preset="0" type="button">California Day</button>
-                <button data-practice-preset="1" type="button">California Dinner</button>
+                <button data-practice-preset="1" type="button">Rust Dress</button>
               </div>
             </div>
           </section>

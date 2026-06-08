@@ -41,8 +41,15 @@ const practiceTopImage = document.getElementById("practice-top-image");
 const practiceTopName = document.getElementById("practice-top-name");
 const practiceBottomImage = document.getElementById("practice-bottom-image");
 const practiceBottomName = document.getElementById("practice-bottom-name");
+const practiceDressImage = document.getElementById("practice-dress-image");
+const practiceDressName = document.getElementById("practice-dress-name");
+const practiceShoeImage = document.getElementById("practice-shoe-image");
+const practiceShoeName = document.getElementById("practice-shoe-name");
 const practicePieceButtons = document.querySelectorAll("[data-cycle-piece]");
 const practicePresetButtons = document.querySelectorAll("[data-practice-preset]");
+const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
+const separatesLevels = document.querySelectorAll("[data-separates-level]");
+const dressLevel = document.querySelector("[data-dress-level]");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
@@ -54,6 +61,9 @@ let canvasPieces = [];
 let canvasDragId = "";
 let practiceTopIndex = 0;
 let practiceBottomIndex = 0;
+let practiceDressIndex = 0;
+let practiceShoeIndex = 0;
+let practiceOutfitMode = "separates";
 
 const practiceTops = [
   { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png" },
@@ -63,6 +73,15 @@ const practiceTops = [
 const practiceBottoms = [
   { name: "Denim shorts", photo: "images/practice/denim-shorts.png" },
   { name: "Cream plaid skirt", photo: "images/practice/plaid-skirt.png" },
+];
+
+const practiceDresses = [
+  { name: "Rust shirt dress", photo: "images/practice/rust-shirt-dress.png" },
+];
+
+const practiceShoes = [
+  { name: "Tan sandals", photo: "images/practice/tan-sandals.png" },
+  { name: "Cream block heels", photo: "images/practice/cream-heels.png" },
 ];
 
 renderApp();
@@ -265,8 +284,26 @@ practicePieceButtons.forEach((button) => {
 
 practicePresetButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    practiceTopIndex = Number(button.dataset.practicePreset);
-    practiceBottomIndex = Number(button.dataset.practicePreset);
+    const preset = Number(button.dataset.practicePreset);
+
+    if (preset === 0) {
+      setPracticeMode("separates");
+      practiceTopIndex = 0;
+      practiceBottomIndex = 0;
+      practiceShoeIndex = 0;
+    } else {
+      setPracticeMode("dress");
+      practiceDressIndex = 0;
+      practiceShoeIndex = 1;
+    }
+
+    renderPracticeOutfit();
+  });
+});
+
+outfitModeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setPracticeMode(button.dataset.outfitMode);
     renderPracticeOutfit();
   });
 });
@@ -602,8 +639,12 @@ function getViewFromHash() {
 function cyclePracticePiece(pieceType, direction) {
   if (pieceType === "top") {
     practiceTopIndex = wrapIndex(practiceTopIndex + direction, practiceTops.length);
-  } else {
+  } else if (pieceType === "bottom") {
     practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, practiceBottoms.length);
+  } else if (pieceType === "dress") {
+    practiceDressIndex = wrapIndex(practiceDressIndex + direction, practiceDresses.length);
+  } else {
+    practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, practiceShoes.length);
   }
 
   renderPracticeOutfit();
@@ -612,6 +653,8 @@ function cyclePracticePiece(pieceType, direction) {
 function renderPracticeOutfit() {
   const top = practiceTops[practiceTopIndex];
   const bottom = practiceBottoms[practiceBottomIndex];
+  const dress = practiceDresses[practiceDressIndex];
+  const shoes = practiceShoes[practiceShoeIndex];
 
   practiceTopImage.src = top.photo;
   practiceTopImage.alt = top.name;
@@ -619,6 +662,25 @@ function renderPracticeOutfit() {
   practiceBottomImage.src = bottom.photo;
   practiceBottomImage.alt = bottom.name;
   practiceBottomName.textContent = bottom.name;
+  practiceDressImage.src = dress.photo;
+  practiceDressImage.alt = dress.name;
+  practiceDressName.textContent = dress.name;
+  practiceShoeImage.src = shoes.photo;
+  practiceShoeImage.alt = shoes.name;
+  practiceShoeName.textContent = shoes.name;
+}
+
+function setPracticeMode(mode) {
+  practiceOutfitMode = mode;
+  const showDress = practiceOutfitMode === "dress";
+
+  separatesLevels.forEach((level) => {
+    level.hidden = showDress;
+  });
+  dressLevel.hidden = !showDress;
+  outfitModeButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.outfitMode === practiceOutfitMode);
+  });
 }
 
 function wrapIndex(index, length) {
