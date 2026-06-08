@@ -65,27 +65,29 @@ let practiceDressIndex = 0;
 let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
 
-const practiceTops = [
+const starterTops = [
   { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png" },
   { name: "Rust knit top", photo: "images/practice/rust-top.png" },
   { name: "Blue striped shirt", photo: "images/practice/blue-striped-shirt.png" },
 ];
 
-const practiceBottoms = [
+const starterBottoms = [
   { name: "Denim shorts", photo: "images/practice/denim-shorts.png" },
   { name: "Cream plaid skirt", photo: "images/practice/plaid-skirt.png" },
   { name: "Striped sailor shorts", photo: "images/practice/striped-sailor-shorts.png" },
   { name: "Floral sailor shorts", photo: "images/practice/floral-sailor-shorts.png" },
 ];
 
-const practiceDresses = [
+const starterDresses = [
   { name: "Rust shirt dress", photo: "images/practice/rust-shirt-dress.png" },
 ];
 
-const practiceShoes = [
+const starterShoes = [
   { name: "Tan sandals", photo: "images/practice/tan-sandals.png" },
   { name: "Cream block heels", photo: "images/practice/cream-heels.png" },
 ];
+
+const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
 
 renderApp();
 showView(getViewFromHash());
@@ -335,6 +337,7 @@ function renderApp() {
   renderCloset();
   renderTray();
   renderCanvas();
+  renderPracticeOutfit();
 }
 
 function renderStats() {
@@ -362,7 +365,10 @@ function renderCloset() {
 
 function getVisibleItems() {
   return wardrobeItems.filter((item) => {
-    const matchesCategory = activeCategory === "All" || item.category === activeCategory;
+    const matchesCategory =
+      activeCategory === "All" ||
+      item.category === activeCategory ||
+      (activeCategory === "Tops" && topCategories.includes(item.category));
     const searchableText = [
       item.name,
       item.category,
@@ -640,24 +646,39 @@ function getViewFromHash() {
 }
 
 function cyclePracticePiece(pieceType, direction) {
+  const tops = getPracticeItems(starterTops, topCategories);
+  const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
+  const dresses = getPracticeItems(starterDresses, ["Dresses"]);
+  const shoes = getPracticeItems(starterShoes, ["Shoes"]);
+
   if (pieceType === "top") {
-    practiceTopIndex = wrapIndex(practiceTopIndex + direction, practiceTops.length);
+    practiceTopIndex = wrapIndex(practiceTopIndex + direction, tops.length);
   } else if (pieceType === "bottom") {
-    practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, practiceBottoms.length);
+    practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, bottoms.length);
   } else if (pieceType === "dress") {
-    practiceDressIndex = wrapIndex(practiceDressIndex + direction, practiceDresses.length);
+    practiceDressIndex = wrapIndex(practiceDressIndex + direction, dresses.length);
   } else {
-    practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, practiceShoes.length);
+    practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, shoes.length);
   }
 
   renderPracticeOutfit();
 }
 
 function renderPracticeOutfit() {
-  const top = practiceTops[practiceTopIndex];
-  const bottom = practiceBottoms[practiceBottomIndex];
-  const dress = practiceDresses[practiceDressIndex];
-  const shoes = practiceShoes[practiceShoeIndex];
+  const tops = getPracticeItems(starterTops, topCategories);
+  const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
+  const dresses = getPracticeItems(starterDresses, ["Dresses"]);
+  const shoeOptions = getPracticeItems(starterShoes, ["Shoes"]);
+
+  practiceTopIndex = wrapIndex(practiceTopIndex, tops.length);
+  practiceBottomIndex = wrapIndex(practiceBottomIndex, bottoms.length);
+  practiceDressIndex = wrapIndex(practiceDressIndex, dresses.length);
+  practiceShoeIndex = wrapIndex(practiceShoeIndex, shoeOptions.length);
+
+  const top = tops[practiceTopIndex];
+  const bottom = bottoms[practiceBottomIndex];
+  const dress = dresses[practiceDressIndex];
+  const shoes = shoeOptions[practiceShoeIndex];
 
   practiceTopImage.src = top.photo;
   practiceTopImage.alt = top.name;
@@ -671,6 +692,17 @@ function renderPracticeOutfit() {
   practiceShoeImage.src = shoes.photo;
   practiceShoeImage.alt = shoes.name;
   practiceShoeName.textContent = shoes.name;
+}
+
+function getPracticeItems(starterItems, categories) {
+  const savedItems = wardrobeItems
+    .filter((item) => categories.includes(item.category))
+    .map((item) => ({
+      name: item.name,
+      photo: item.photo,
+    }));
+
+  return [...starterItems, ...savedItems];
 }
 
 function setPracticeMode(mode) {
