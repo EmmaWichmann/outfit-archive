@@ -68,11 +68,14 @@ let practiceOutfitMode = "separates";
 const practiceTops = [
   { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png" },
   { name: "Rust knit top", photo: "images/practice/rust-top.png" },
+  { name: "Blue striped shirt", photo: "images/practice/blue-striped-shirt.png" },
 ];
 
 const practiceBottoms = [
   { name: "Denim shorts", photo: "images/practice/denim-shorts.png" },
   { name: "Cream plaid skirt", photo: "images/practice/plaid-skirt.png" },
+  { name: "Striped sailor shorts", photo: "images/practice/striped-sailor-shorts.png" },
+  { name: "Floral sailor shorts", photo: "images/practice/floral-sailor-shorts.png" },
 ];
 
 const practiceDresses = [
