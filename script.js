@@ -11,6 +11,7 @@
 
 const storageKey = "outfit-archive-items";
 const outfitsKey = "outfit-archive-saved-outfits";
+const hiddenStarterItemsKey = "outfit-archive-hidden-starter-items";
 
 const navButtons = document.querySelectorAll("[data-view-target]");
 const sections = document.querySelectorAll("[data-view]");
@@ -54,6 +55,7 @@ const dressLevel = document.querySelector("[data-dress-level]");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
+let hiddenStarterItemIds = readStorage(hiddenStarterItemsKey);
 let activeCategory = "All";
 let searchTerm = "";
 let photoData = "";
@@ -67,26 +69,17 @@ let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
 let activeTopType = "all";
 
-const starterTops = [
-  { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png", topType: "short" },
-  { name: "Rust knit top", photo: "images/practice/rust-top.png", topType: "short" },
-  { name: "Blue striped shirt", photo: "images/practice/blue-striped-shirt.png", topType: "long" },
-];
-
-const starterBottoms = [
-  { name: "Denim shorts", photo: "images/practice/denim-shorts.png" },
-  { name: "Cream plaid skirt", photo: "images/practice/plaid-skirt.png" },
-  { name: "Striped sailor shorts", photo: "images/practice/striped-sailor-shorts.png" },
-  { name: "Floral sailor shorts", photo: "images/practice/floral-sailor-shorts.png" },
-];
-
-const starterDresses = [
-  { name: "Rust shirt dress", photo: "images/practice/rust-shirt-dress.png" },
-];
-
-const starterShoes = [
-  { name: "Tan sandals", photo: "images/practice/tan-sandals.png" },
-  { name: "Cream block heels", photo: "images/practice/cream-heels.png" },
+const starterWardrobeItems = [
+  createStarterItem("starter-ivory-blouse", "Ivory blouse", "Short Sleeve Tops", "images/practice/ivory-blouse.png", ["ivory"], ["short sleeve", "classic"]),
+  createStarterItem("starter-rust-top", "Rust knit top", "Short Sleeve Tops", "images/practice/rust-top.png", ["rust"], ["short sleeve", "casual"]),
+  createStarterItem("starter-blue-shirt", "Blue striped shirt", "Long Sleeve Tops", "images/practice/blue-striped-shirt.png", ["blue", "white"], ["long sleeve", "layering"]),
+  createStarterItem("starter-denim-shorts", "Denim shorts", "Bottoms", "images/practice/denim-shorts.png", ["denim", "blue"], ["shorts", "casual"]),
+  createStarterItem("starter-plaid-skirt", "Cream plaid skirt", "Bottoms", "images/practice/plaid-skirt.png", ["cream"], ["skirt", "plaid"]),
+  createStarterItem("starter-striped-shorts", "Striped sailor shorts", "Bottoms", "images/practice/striped-sailor-shorts.png", ["ivory", "blue"], ["shorts", "striped"]),
+  createStarterItem("starter-floral-shorts", "Floral sailor shorts", "Bottoms", "images/practice/floral-sailor-shorts.png", ["cream", "floral"], ["shorts", "casual"]),
+  createStarterItem("starter-rust-dress", "Rust shirt dress", "Dresses", "images/practice/rust-shirt-dress.png", ["rust"], ["dress", "summer"]),
+  createStarterItem("starter-tan-sandals", "Tan sandals", "Shoes", "images/practice/tan-sandals.png", ["tan"], ["sandals", "casual"]),
+  createStarterItem("starter-cream-heels", "Cream block heels", "Shoes", "images/practice/cream-heels.png", ["cream"], ["heels", "dressy"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
@@ -354,9 +347,10 @@ function renderApp() {
 }
 
 function renderStats() {
-  itemCount.textContent = wardrobeItems.length;
+  const allItems = getAllClosetItems();
+  itemCount.textContent = allItems.length;
   outfitCount.textContent = savedOutfits.length;
-  favoriteCount.textContent = wardrobeItems.filter((item) => item.favorite).length;
+  favoriteCount.textContent = allItems.filter((item) => item.favorite).length;
 }
 
 function renderCloset() {
@@ -377,7 +371,7 @@ function renderCloset() {
 }
 
 function getVisibleItems() {
-  return wardrobeItems.filter((item) => {
+  return getAllClosetItems().filter((item) => {
     const matchesCategory =
       activeCategory === "All" ||
       item.category === activeCategory ||
@@ -408,6 +402,7 @@ function createItemCard(item) {
   favoriteButton.dataset.id = item.id;
   favoriteButton.classList.toggle("is-favorite", item.favorite);
   favoriteButton.textContent = item.favorite ? "♥" : "♡";
+  favoriteButton.hidden = item.isStarter;
 
   const deleteButton = card.querySelector(".delete-item");
   deleteButton.dataset.id = item.id;
@@ -427,9 +422,10 @@ function createItemCard(item) {
 function createOutfitCard(outfit) {
   const article = document.createElement("article");
   article.className = "outfit-card";
+  const allItems = getAllClosetItems();
 
   const pieces = outfit.pieceIds
-    .map((id) => wardrobeItems.find((item) => item.id === id))
+    .map((id) => allItems.find((item) => item.id === id))
     .filter(Boolean);
 
   const images = document.createElement("div");
@@ -465,7 +461,7 @@ function createTag(label) {
 function renderTray() {
   trayItems.innerHTML = "";
 
-  wardrobeItems.forEach((item) => {
+  getAllClosetItems().forEach((item) => {
     const piece = document.createElement("article");
     piece.className = "tray-piece";
     piece.dataset.itemId = item.id;
@@ -508,7 +504,7 @@ function renderCanvas() {
   note.hidden = canvasPieces.length > 0;
 
   canvasPieces.forEach((piece) => {
-    const item = wardrobeItems.find((entry) => entry.id === piece.itemId);
+    const item = getAllClosetItems().find((entry) => entry.id === piece.itemId);
 
     if (!item) {
       return;
@@ -532,7 +528,7 @@ function renderCanvas() {
 
 function renderSuggestions(prompt) {
   const words = prompt.toLowerCase().split(/\W+/).filter(Boolean);
-  const scoredItems = wardrobeItems
+  const scoredItems = getAllClosetItems()
     .map((item) => ({
       item,
       score: scoreItem(item, words),
@@ -606,13 +602,19 @@ function pickBalancedPieces(scoredItems) {
 }
 
 function deleteItem(id) {
-  const item = wardrobeItems.find((entry) => entry.id === id);
+  const item = getAllClosetItems().find((entry) => entry.id === id);
 
   if (!item || !window.confirm(`Remove "${item.name}" from your closet?`)) {
     return;
   }
 
-  wardrobeItems = wardrobeItems.filter((item) => item.id !== id);
+  if (item.isStarter) {
+    hiddenStarterItemIds = [...new Set([...hiddenStarterItemIds, id])];
+    localStorage.setItem(hiddenStarterItemsKey, JSON.stringify(hiddenStarterItemIds));
+  } else {
+    wardrobeItems = wardrobeItems.filter((item) => item.id !== id);
+  }
+
   canvasPieces = canvasPieces.filter((piece) => piece.itemId !== id);
   savedOutfits = savedOutfits
     .map((outfit) => ({
@@ -660,9 +662,9 @@ function getViewFromHash() {
 
 function cyclePracticePiece(pieceType, direction) {
   const tops = getPracticeTops();
-  const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
-  const dresses = getPracticeItems(starterDresses, ["Dresses"]);
-  const shoes = getPracticeItems(starterShoes, ["Shoes"]);
+  const bottoms = getPracticeItems(["Bottoms"]);
+  const dresses = getPracticeItems(["Dresses"]);
+  const shoes = getPracticeItems(["Shoes"]);
 
   if (pieceType === "top") {
     practiceTopIndex = wrapIndex(practiceTopIndex + direction, tops.length);
@@ -679,19 +681,19 @@ function cyclePracticePiece(pieceType, direction) {
 
 function renderPracticeOutfit() {
   const tops = getPracticeTops();
-  const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
-  const dresses = getPracticeItems(starterDresses, ["Dresses"]);
-  const shoeOptions = getPracticeItems(starterShoes, ["Shoes"]);
+  const bottoms = getPracticeItems(["Bottoms"]);
+  const dresses = getPracticeItems(["Dresses"]);
+  const shoeOptions = getPracticeItems(["Shoes"]);
 
   practiceTopIndex = wrapIndex(practiceTopIndex, tops.length);
   practiceBottomIndex = wrapIndex(practiceBottomIndex, bottoms.length);
   practiceDressIndex = wrapIndex(practiceDressIndex, dresses.length);
   practiceShoeIndex = wrapIndex(practiceShoeIndex, shoeOptions.length);
 
-  const top = tops[practiceTopIndex];
-  const bottom = bottoms[practiceBottomIndex];
-  const dress = dresses[practiceDressIndex];
-  const shoes = shoeOptions[practiceShoeIndex];
+  const top = tops[practiceTopIndex] || createEmptyPracticeItem("Add a top");
+  const bottom = bottoms[practiceBottomIndex] || createEmptyPracticeItem("Add a bottom");
+  const dress = dresses[practiceDressIndex] || createEmptyPracticeItem("Add a dress");
+  const shoes = shoeOptions[practiceShoeIndex] || createEmptyPracticeItem("Add shoes");
 
   practiceTopImage.src = top.photo;
   practiceTopImage.alt = top.name;
@@ -707,26 +709,23 @@ function renderPracticeOutfit() {
   practiceShoeName.textContent = shoes.name;
 }
 
-function getPracticeItems(starterItems, categories) {
-  const savedItems = wardrobeItems
+function getPracticeItems(categories) {
+  return getAllClosetItems()
     .filter((item) => categories.includes(item.category))
     .map((item) => ({
       name: item.name,
       photo: item.photo,
     }));
-
-  return [...savedItems, ...starterItems];
 }
 
 function getPracticeTops() {
-  const savedTops = wardrobeItems
+  const allTops = getAllClosetItems()
     .filter((item) => topCategories.includes(item.category))
     .map((item) => ({
       name: item.name,
       photo: item.photo,
       topType: getTopType(item),
     }));
-  const allTops = [...savedTops, ...starterTops];
 
   if (activeTopType === "all") {
     return allTops;
@@ -764,7 +763,39 @@ function setPracticeMode(mode) {
 }
 
 function wrapIndex(index, length) {
+  if (length === 0) {
+    return 0;
+  }
+
   return (index + length) % length;
+}
+
+function createStarterItem(id, name, category, photo, colors, tags) {
+  return {
+    id,
+    name,
+    category,
+    photo,
+    colors,
+    tags,
+    favorite: false,
+    isStarter: true,
+  };
+}
+
+function getAllClosetItems() {
+  const visibleStarterItems = starterWardrobeItems.filter(
+    (item) => !hiddenStarterItemIds.includes(item.id),
+  );
+  return [...wardrobeItems, ...visibleStarterItems];
+}
+
+function createEmptyPracticeItem(name) {
+  return {
+    name,
+    photo:
+      "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='240' viewBox='0 0 300 240'%3E%3Crect width='300' height='240' fill='%23f7f2e9'/%3E%3Ctext x='150' y='125' text-anchor='middle' font-family='Arial' font-size='18' fill='%23736f68'%3EUse Add a piece%3C/text%3E%3C/svg%3E",
+  };
 }
 
 function saveItems() {
