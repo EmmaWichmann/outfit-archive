@@ -367,7 +367,7 @@ h3 {
 .practice-outfit-track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(460px, 72%);
+  grid-auto-columns: 72%;
   gap: 16px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
@@ -1037,7 +1037,7 @@ Add hover animations for outfit cards here.
   }
 
   .practice-outfit-track {
-    grid-auto-columns: minmax(300px, 86%);
+    grid-auto-columns: 86%;
   }
 
   .practice-outfit-card {
