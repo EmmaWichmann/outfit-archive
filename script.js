@@ -48,6 +48,7 @@ const practiceShoeName = document.getElementById("practice-shoe-name");
 const practicePieceButtons = document.querySelectorAll("[data-cycle-piece]");
 const practicePresetButtons = document.querySelectorAll("[data-practice-preset]");
 const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
+const topTypeButtons = document.querySelectorAll("[data-top-type]");
 const separatesLevels = document.querySelectorAll("[data-separates-level]");
 const dressLevel = document.querySelector("[data-dress-level]");
 
@@ -64,11 +65,12 @@ let practiceBottomIndex = 0;
 let practiceDressIndex = 0;
 let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
+let activeTopType = "all";
 
 const starterTops = [
-  { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png" },
-  { name: "Rust knit top", photo: "images/practice/rust-top.png" },
-  { name: "Blue striped shirt", photo: "images/practice/blue-striped-shirt.png" },
+  { name: "Ivory blouse", photo: "images/practice/ivory-blouse.png", topType: "short" },
+  { name: "Rust knit top", photo: "images/practice/rust-top.png", topType: "short" },
+  { name: "Blue striped shirt", photo: "images/practice/blue-striped-shirt.png", topType: "long" },
 ];
 
 const starterBottoms = [
@@ -309,6 +311,17 @@ practicePresetButtons.forEach((button) => {
 outfitModeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setPracticeMode(button.dataset.outfitMode);
+    renderPracticeOutfit();
+  });
+});
+
+topTypeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeTopType = button.dataset.topType;
+    practiceTopIndex = 0;
+    topTypeButtons.forEach((item) => {
+      item.classList.toggle("active", item === button);
+    });
     renderPracticeOutfit();
   });
 });
@@ -646,7 +659,7 @@ function getViewFromHash() {
 }
 
 function cyclePracticePiece(pieceType, direction) {
-  const tops = getPracticeItems(starterTops, topCategories);
+  const tops = getPracticeTops();
   const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
   const dresses = getPracticeItems(starterDresses, ["Dresses"]);
   const shoes = getPracticeItems(starterShoes, ["Shoes"]);
@@ -665,7 +678,7 @@ function cyclePracticePiece(pieceType, direction) {
 }
 
 function renderPracticeOutfit() {
-  const tops = getPracticeItems(starterTops, topCategories);
+  const tops = getPracticeTops();
   const bottoms = getPracticeItems(starterBottoms, ["Bottoms"]);
   const dresses = getPracticeItems(starterDresses, ["Dresses"]);
   const shoeOptions = getPracticeItems(starterShoes, ["Shoes"]);
@@ -702,7 +715,39 @@ function getPracticeItems(starterItems, categories) {
       photo: item.photo,
     }));
 
-  return [...starterItems, ...savedItems];
+  return [...savedItems, ...starterItems];
+}
+
+function getPracticeTops() {
+  const savedTops = wardrobeItems
+    .filter((item) => topCategories.includes(item.category))
+    .map((item) => ({
+      name: item.name,
+      photo: item.photo,
+      topType: getTopType(item),
+    }));
+  const allTops = [...savedTops, ...starterTops];
+
+  if (activeTopType === "all") {
+    return allTops;
+  }
+
+  return allTops.filter((item) => item.topType === activeTopType);
+}
+
+function getTopType(item) {
+  if (item.category === "Short Sleeve Tops") {
+    return "short";
+  }
+
+  if (item.category === "Long Sleeve Tops") {
+    return "long";
+  }
+
+  const itemText = [item.name, ...item.tags].join(" ").toLowerCase();
+  const longSleeveWords = ["long sleeve", "button-down", "button down", "oxford", "layering"];
+
+  return longSleeveWords.some((word) => itemText.includes(word)) ? "long" : "short";
 }
 
 function setPracticeMode(mode) {

@@ -395,6 +395,28 @@ h3 {
   text-transform: uppercase;
 }
 
+.top-type-filter {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: flex;
+  gap: 5px;
+}
+
+.top-type-filter button {
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: #fffdf7;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.top-type-filter button.active {
+  background: var(--ink);
+  color: white;
+}
+
 .selector-image {
   width: min(260px, 72%);
   height: 185px;
@@ -1010,6 +1032,13 @@ Add hover animations for outfit cards here.
 
   .practice-titlebar {
     flex-direction: column;
+  }
+
+  .top-type-filter {
+    position: static;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 30px 0 8px;
   }
 
   .practice-presets {
