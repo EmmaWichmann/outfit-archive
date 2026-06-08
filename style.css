@@ -269,6 +269,11 @@ h3 {
   font-weight: 600;
 }
 
+.primary-button,
+.primary-button span {
+  color: #fffdf7;
+}
+
 #open-item-dialog span:last-child::after {
   content: "Add a piece";
 }
