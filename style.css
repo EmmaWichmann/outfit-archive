@@ -703,10 +703,6 @@ Add hover animations for outfit cards here.
   margin-top: 16px;
 }
 
-.save-outfit-form button span::after {
-  content: "Save outfit";
-}
-
 .suggestion-layout {
   display: grid;
   grid-template-columns: minmax(280px, 0.72fr) minmax(380px, 1.28fr);
@@ -728,10 +724,6 @@ Add hover animations for outfit cards here.
 
 .suggestion-form button {
   margin-top: 12px;
-}
-
-.suggestion-form button span::after {
-  content: "Suggest an outfit";
 }
 
 .form-hint {
@@ -888,10 +880,6 @@ Add hover animations for outfit cards here.
 
 .full-width {
   width: 100%;
-}
-
-.item-form > .primary-button span::after {
-  content: "Save to closet";
 }
 
 .visually-hidden {
