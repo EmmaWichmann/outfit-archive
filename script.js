@@ -37,6 +37,9 @@ const suggestionResults = document.getElementById("suggestion-results");
 const itemCount = document.getElementById("item-count");
 const outfitCount = document.getElementById("outfit-count");
 const favoriteCount = document.getElementById("favorite-count");
+const practiceOutfitTrack = document.getElementById("practice-outfit-track");
+const previousPracticeOutfit = document.getElementById("previous-practice-outfit");
+const nextPracticeOutfit = document.getElementById("next-practice-outfit");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
@@ -237,6 +240,14 @@ saveOutfitForm.addEventListener("submit", (event) => {
 suggestionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   renderSuggestions(occasionInput.value);
+});
+
+previousPracticeOutfit.addEventListener("click", () => {
+  scrollPracticeOutfits(-1);
+});
+
+nextPracticeOutfit.addEventListener("click", () => {
+  scrollPracticeOutfits(1);
 });
 
 function showView(viewName) {
@@ -565,6 +576,20 @@ function resetPhoto(message = "") {
 
 function getViewFromHash() {
   return window.location.hash.replace("#", "") || "closet";
+}
+
+function scrollPracticeOutfits(direction) {
+  const firstCard = practiceOutfitTrack.querySelector(".practice-outfit-card");
+
+  if (!firstCard) {
+    return;
+  }
+
+  const gap = 16;
+  practiceOutfitTrack.scrollBy({
+    left: direction * (firstCard.offsetWidth + gap),
+    behavior: "smooth",
+  });
 }
 
 function saveItems() {

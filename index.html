@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=0.2.0" />
+    <script src="script.js?v=0.2.0" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -121,6 +121,74 @@
             <h2>Pieces worth remembering.</h2>
             <p>Browse by category, color, or the small details that make an item feel like yours.</p>
           </header>
+
+          <section class="practice-outfits" aria-labelledby="practice-outfits-title">
+            <div class="practice-heading">
+              <div>
+                <p class="eyebrow">Practice area</p>
+                <h3 id="practice-outfits-title">Swipe through two sample outfits.</h3>
+                <p>These are examples only. They are not added to your saved closet.</p>
+              </div>
+              <div class="swipe-controls" aria-label="Practice outfit controls">
+                <button
+                  class="swipe-button"
+                  id="previous-practice-outfit"
+                  type="button"
+                  aria-label="Previous practice outfit"
+                >
+                  ←
+                </button>
+                <button
+                  class="swipe-button"
+                  id="next-practice-outfit"
+                  type="button"
+                  aria-label="Next practice outfit"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            <div class="practice-outfit-track" id="practice-outfit-track" tabindex="0">
+              <article class="practice-outfit-card">
+                <div class="practice-look practice-look-day" aria-hidden="true">
+                  <span class="look-piece look-top">Ivory top</span>
+                  <span class="look-piece look-bottom">Denim shorts</span>
+                  <span class="look-piece look-shoes">Tan sandals</span>
+                  <span class="look-piece look-bag">Woven bag</span>
+                </div>
+                <div class="practice-copy">
+                  <p class="practice-number">Practice outfit 1 of 2</p>
+                  <h4>California Day</h4>
+                  <p>Ivory top, denim shorts, tan sandals, and a woven bag.</p>
+                  <div class="tag-list">
+                    <span class="tag">casual</span>
+                    <span class="tag">warm weather</span>
+                    <span class="tag">daytime</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="practice-outfit-card">
+                <div class="practice-look practice-look-dinner" aria-hidden="true">
+                  <span class="look-piece look-dress">Rust dress</span>
+                  <span class="look-piece look-heels">Cream shoes</span>
+                  <span class="look-piece look-clutch">Gold bag</span>
+                </div>
+                <div class="practice-copy">
+                  <p class="practice-number">Practice outfit 2 of 2</p>
+                  <h4>California Dinner</h4>
+                  <p>Rust dress, cream shoes, and a small gold bag.</p>
+                  <div class="tag-list">
+                    <span class="tag">dinner</span>
+                    <span class="tag">polished</span>
+                    <span class="tag">summer</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <p class="swipe-hint">Swipe left or right to see the next outfit.</p>
+          </section>
 
           <div class="closet-toolbar">
             <label class="search-field">
