@@ -154,21 +154,9 @@ h3 {
   font-size: 0.72rem;
 }
 
-.nav-button strong::after {
+.nav-button strong {
   color: var(--ink);
   font-weight: 600;
-}
-
-.nav-button[data-view-target="closet"] strong::after {
-  content: "Closet";
-}
-
-.nav-button[data-view-target="builder"] strong::after {
-  content: "Mix & Match";
-}
-
-.nav-button[data-view-target="suggestions"] strong::after {
-  content: "Suggestions";
 }
 
 .nav-button.active {
@@ -240,14 +228,6 @@ h3 {
   line-height: 0.95;
 }
 
-.topbar h1::after {
-  content: "A wardrobe, thoughtfully remembered.";
-}
-
-.topbar > div > .eyebrow::after {
-  content: "Personal style system";
-}
-
 .primary-button,
 .text-button,
 .icon-button,
@@ -303,18 +283,6 @@ h3 {
   font-size: 0.72rem;
 }
 
-.summary-strip article:nth-child(1) p::after {
-  content: "saved pieces";
-}
-
-.summary-strip article:nth-child(2) p::after {
-  content: "saved outfits";
-}
-
-.summary-strip article:nth-child(3) p::after {
-  content: "favorites";
-}
-
 .summary-strip blockquote {
   display: grid;
   place-items: center;
@@ -349,42 +317,6 @@ h3 {
 .section-intro p:last-child {
   color: var(--muted);
   line-height: 1.7;
-}
-
-#closet-section .section-intro .eyebrow::after {
-  content: "The archive";
-}
-
-#closet-section .section-intro h2::after {
-  content: "Pieces worth remembering.";
-}
-
-#closet-section .section-intro > p:last-child::after {
-  content: "Browse by category, color, or the small details that make an item feel like yours.";
-}
-
-#mix-match-section .section-intro .eyebrow::after {
-  content: "The dressing room";
-}
-
-#mix-match-section .section-intro h2::after {
-  content: "Compose a look.";
-}
-
-#mix-match-section .section-intro > p:last-child::after {
-  content: "Drag pieces into the canvas, rearrange them, and save combinations for later.";
-}
-
-#suggestions-section .section-intro .eyebrow::after {
-  content: "The style edit";
-}
-
-#suggestions-section .section-intro h2::after {
-  content: "Dress for the feeling.";
-}
-
-#suggestions-section .section-intro > p:last-child::after {
-  content: "Describe a mood or occasion and let your own archive become the inspiration.";
 }
 
 .closet-toolbar {
@@ -470,7 +402,8 @@ Add hover animations for outfit cards here.
 .card-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  padding: 14px;
+  object-fit: contain;
 }
 
 .favorite-button {
@@ -535,10 +468,6 @@ Add hover animations for outfit cards here.
   font-weight: 600;
 }
 
-.delete-item::after {
-  content: "Remove";
-}
-
 .empty-state {
   display: grid;
   min-height: 330px;
@@ -570,10 +499,6 @@ Add hover animations for outfit cards here.
   line-height: 1.6;
 }
 
-.empty-state .text-button::after {
-  content: "Add the first piece";
-}
-
 .empty-monogram {
   display: grid;
   width: 62px;
@@ -599,10 +524,6 @@ Add hover animations for outfit cards here.
   border-radius: var(--radius-lg);
   padding: 22px;
   background: rgba(255, 253, 247, 0.5);
-}
-
-.tray-heading h3::after {
-  content: "Your pieces";
 }
 
 .tray-heading p {
@@ -631,7 +552,8 @@ Add hover animations for outfit cards here.
 .tray-piece img {
   width: 100%;
   aspect-ratio: 4 / 5;
-  object-fit: cover;
+  padding: 8px;
+  object-fit: contain;
 }
 
 .tray-piece p {
@@ -680,7 +602,7 @@ Add hover animations for outfit cards here.
 .canvas-piece img {
   width: 100%;
   aspect-ratio: 4 / 5;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .canvas-piece button {
@@ -717,10 +639,6 @@ Add hover animations for outfit cards here.
 .suggestion-form label {
   display: grid;
   gap: 8px;
-}
-
-.suggestion-form label > span::after {
-  content: "Mood or occasion";
 }
 
 .suggestion-form button {
@@ -797,14 +715,6 @@ Add hover animations for outfit cards here.
   align-items: start;
 }
 
-.item-form header .eyebrow::after {
-  content: "New archive entry";
-}
-
-.item-form header h2::after {
-  content: "Add a piece.";
-}
-
 .icon-button {
   border: 0;
   background: transparent;
@@ -821,10 +731,6 @@ Add hover animations for outfit cards here.
   border-radius: var(--radius-md);
   background: rgba(255, 253, 247, 0.5);
   cursor: pointer;
-}
-
-.upload-field > span:first-child::after {
-  content: "Photo";
 }
 
 .upload-field input {
@@ -849,7 +755,15 @@ Add hover animations for outfit cards here.
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  padding: 14px;
+  object-fit: contain;
+}
+
+.upload-message {
+  min-height: 1.25rem;
+  margin: -10px 2px 0;
+  color: var(--mauve, #816a78);
+  font-size: 0.75rem;
 }
 
 .form-grid {
@@ -861,22 +775,6 @@ Add hover animations for outfit cards here.
 .item-form label {
   display: grid;
   gap: 7px;
-}
-
-.form-grid label:first-child > span::after {
-  content: "Name";
-}
-
-.form-grid label:last-child > span::after {
-  content: "Category";
-}
-
-.item-form > label:nth-of-type(2) > span::after {
-  content: "Color tags";
-}
-
-.item-form > label:nth-of-type(3) > span::after {
-  content: "Style tags";
 }
 
 .full-width {
@@ -946,6 +844,15 @@ Add hover animations for outfit cards here.
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .search-field,
+  .category-filters {
+    width: 100%;
+  }
+
+  .search-field {
+    flex: none;
   }
 
   .closet-grid {

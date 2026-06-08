@@ -21,6 +21,7 @@ const itemDialog = document.getElementById("item-dialog");
 const itemForm = document.getElementById("item-form");
 const itemPhotoInput = document.getElementById("item-photo");
 const photoPreview = document.getElementById("photo-preview");
+const uploadMessage = document.getElementById("upload-message");
 const closetGrid = document.getElementById("closet-grid");
 const closetEmpty = document.getElementById("closet-empty");
 const itemTemplate = document.getElementById("item-card-template");
@@ -47,6 +48,7 @@ let canvasPieces = [];
 let canvasDragId = "";
 
 renderApp();
+showView(getViewFromHash());
 
 // View navigation: shows one main feature at a time.
 navButtons.forEach((button) => {
@@ -64,8 +66,22 @@ itemPhotoInput.addEventListener("change", () => {
   const file = itemPhotoInput.files[0];
 
   if (!file) {
-    photoData = "";
-    photoPreview.hidden = true;
+    resetPhoto();
+    return;
+  }
+
+  const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+  const maximumFileSize = 4 * 1024 * 1024;
+
+  if (!allowedTypes.includes(file.type)) {
+    resetPhoto("Please choose a PNG, JPG, or WEBP image.");
+    itemPhotoInput.value = "";
+    return;
+  }
+
+  if (file.size > maximumFileSize) {
+    resetPhoto("This image is larger than 4 MB. Resize it, then try again.");
+    itemPhotoInput.value = "";
     return;
   }
 
@@ -74,6 +90,13 @@ itemPhotoInput.addEventListener("change", () => {
     photoData = reader.result;
     photoPreview.src = photoData;
     photoPreview.hidden = false;
+    uploadMessage.textContent =
+      file.type === "image/png"
+        ? "PNG selected. Any transparent background will stay transparent."
+        : "Image ready. Use a PNG file when you need a transparent background.";
+  });
+  reader.addEventListener("error", () => {
+    resetPhoto("That image could not be read. Please try a different file.");
   });
   reader.readAsDataURL(file);
 });
@@ -217,13 +240,22 @@ suggestionForm.addEventListener("submit", (event) => {
 });
 
 function showView(viewName) {
+  const validView = [...sections].some((section) => section.dataset.view === viewName)
+    ? viewName
+    : "closet";
+
   navButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.viewTarget === viewName);
+    const isActive = button.dataset.viewTarget === validView;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
   });
 
   sections.forEach((section) => {
-    section.hidden = section.dataset.view !== viewName;
+    section.hidden = section.dataset.view !== validView;
   });
+
+  history.replaceState(null, "", `#${validView}`);
+  document.getElementById("top").scrollIntoView({ behavior: "smooth" });
 }
 
 function renderApp() {
@@ -469,7 +501,7 @@ function scoreItem(item, words) {
 }
 
 function pickBalancedPieces(scoredItems) {
-  const categories = ["Tops", "Bottoms", "Shoes", "Accessories", "Full Outfits"];
+  const categories = ["Dresses", "Tops", "Bottoms", "Shoes", "Accessories", "Full Outfits"];
   const picks = [];
 
   categories.forEach((category) => {
@@ -483,6 +515,12 @@ function pickBalancedPieces(scoredItems) {
 }
 
 function deleteItem(id) {
+  const item = wardrobeItems.find((entry) => entry.id === id);
+
+  if (!item || !window.confirm(`Remove "${item.name}" from your closet?`)) {
+    return;
+  }
+
   wardrobeItems = wardrobeItems.filter((item) => item.id !== id);
   canvasPieces = canvasPieces.filter((piece) => piece.itemId !== id);
   savedOutfits = savedOutfits
@@ -496,10 +534,16 @@ function deleteItem(id) {
   renderApp();
 }
 
-function toggleFavorite(id){
-  // TODO:
-  // This function should add or remove an item from favorites
-  // and update localStorage.
+function toggleFavorite(id) {
+  const item = wardrobeItems.find((entry) => entry.id === id);
+
+  if (!item) {
+    return;
+  }
+
+  item.favorite = !item.favorite;
+  saveItems();
+  renderApp();
 }
 
 function openItemDialog() {
@@ -508,10 +552,19 @@ function openItemDialog() {
 
 function closeItemDialog() {
   itemForm.reset();
+  resetPhoto();
+  itemDialog.close();
+}
+
+function resetPhoto(message = "") {
   photoData = "";
   photoPreview.hidden = true;
   photoPreview.removeAttribute("src");
-  itemDialog.close();
+  uploadMessage.textContent = message;
+}
+
+function getViewFromHash() {
+  return window.location.hash.replace("#", "") || "closet";
 }
 
 function saveItems() {
