@@ -53,6 +53,13 @@ const saveCollageForm = document.getElementById("save-collage-form");
 const collageNameInput = document.getElementById("collage-name");
 const clearCollageButton = document.getElementById("clear-collage-canvas");
 const bgSwatches = document.querySelectorAll("[data-bg-color]");
+const editDialog = document.getElementById("edit-dialog");
+const editForm = document.getElementById("edit-form");
+const editItemIdInput = document.getElementById("edit-item-id");
+const editItemNameInput = document.getElementById("edit-item-name");
+const editItemCategorySelect = document.getElementById("edit-item-category");
+const editItemColorsInput = document.getElementById("edit-item-colors");
+const editItemTagsInput = document.getElementById("edit-item-tags");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
@@ -128,6 +135,38 @@ navButtons.forEach((button) => {
 openDialogButton.addEventListener("click", openItemDialog);
 emptyAddButton.addEventListener("click", openItemDialog);
 closeDialogButton.addEventListener("click", closeItemDialog);
+document.getElementById("close-edit-dialog").addEventListener("click", () => editDialog.close());
+
+editForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const id = editItemIdInput.value;
+  const name = editItemNameInput.value.trim();
+  const category = editItemCategorySelect.value;
+  const colors = parseList(editItemColorsInput.value);
+  const tags = parseList(editItemTagsInput.value);
+
+  if (!name || !category) return;
+
+  const starterItem = starterWardrobeItems.find((entry) => entry.id === id);
+  const regularItem = wardrobeItems.find((entry) => entry.id === id);
+
+  if (starterItem && !regularItem) {
+    wardrobeItems.unshift({ ...starterItem, name, category, colors, tags, isStarter: false, createdAt: new Date().toISOString() });
+    hiddenStarterItemIds = [...new Set([...hiddenStarterItemIds, id])];
+  } else if (regularItem) {
+    regularItem.name = name;
+    regularItem.category = category;
+    regularItem.colors = colors;
+    regularItem.tags = tags;
+  }
+
+  saveItems();
+  saveClosetAndTrash();
+  renderApp();
+  renderPracticeCarousels();
+  editDialog.close();
+});
 
 bgSwatches.forEach((swatch) => {
   swatch.addEventListener("click", () => {
@@ -351,6 +390,11 @@ closetGrid.addEventListener("click", (event) => {
   if (deleteButton && deleteButton.dataset.deleteCollage) {
     deleteCollage(deleteButton.dataset.deleteCollage);
   }
+
+  const editButton = event.target.closest("[data-edit-id]");
+  if (editButton) {
+    openEditDialog(editButton.dataset.editId);
+  }
 });
 
 suggestionForm.addEventListener("submit", (event) => {
@@ -526,6 +570,13 @@ function createItemCard(item) {
 
   const deleteButton = card.querySelector(".delete-item");
   deleteButton.dataset.id = item.id;
+
+  const editButton = document.createElement("button");
+  editButton.className = "text-button";
+  editButton.dataset.editId = item.id;
+  editButton.type = "button";
+  editButton.textContent = "Edit";
+  card.querySelector(".card-body").append(editButton);
 
   const tagList = card.querySelector(".tag-list");
   [...item.colors, ...item.tags].forEach((tag) => {
@@ -853,6 +904,19 @@ function toggleFavorite(id) {
 
 function openItemDialog() {
   itemDialog.showModal();
+}
+
+function openEditDialog(id) {
+  const item = getAllClosetItems().find((entry) => entry.id === id);
+  if (!item) return;
+
+  editItemIdInput.value = id;
+  editItemNameInput.value = item.name;
+  editItemCategorySelect.value = item.category;
+  editItemColorsInput.value = item.colors.join(", ");
+  editItemTagsInput.value = item.tags.join(", ");
+
+  editDialog.showModal();
 }
 
 function closeItemDialog() {

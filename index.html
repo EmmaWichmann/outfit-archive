@@ -338,6 +338,53 @@
       </section>
     </dialog>
 
+    <dialog class="item-dialog" id="edit-dialog">
+      <form class="item-form" id="edit-form">
+        <header>
+          <div>
+            <p class="eyebrow">Update this piece</p>
+            <h2>Edit item.</h2>
+          </div>
+          <button class="icon-button" id="close-edit-dialog" type="button" aria-label="Close">&#xd7;</button>
+        </header>
+
+        <input type="hidden" id="edit-item-id" />
+
+        <div class="form-grid">
+          <label>
+            <span>Name</span>
+            <input id="edit-item-name" type="text" required />
+          </label>
+          <label>
+            <span>Category</span>
+            <select id="edit-item-category" required>
+              <option value="">Choose one...</option>
+              <option value="Tops">Tops (Other)</option>
+              <option>Short Sleeve Tops</option>
+              <option>Long Sleeve Tops</option>
+              <option>Bottoms</option>
+              <option>Dresses</option>
+              <option>Shoes</option>
+              <option>Accessories</option>
+              <option>Full Outfits</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          <span>Color tags</span>
+          <input id="edit-item-colors" type="text" placeholder="sage, ivory, warm brown" required />
+        </label>
+
+        <label>
+          <span>Style tags</span>
+          <input id="edit-item-tags" type="text" placeholder="casual, comfy, movement" />
+        </label>
+
+        <button class="primary-button full-width" type="submit"><span>Save changes</span></button>
+      </form>
+    </dialog>
+
     <template id="item-card-template">
       <article class="outfit-card" draggable="true">
         <div class="card-image-wrap">
