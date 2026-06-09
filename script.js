@@ -80,6 +80,7 @@ let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
 let collagePieces = [];
 let collageBackground = "#c9a87c";
 let collagePointerDrag = null;
+let editingCollageId = null;
 
 const defaultVibeTabs = [
   { id: "vibe-all", label: "All", filter: "all" },
@@ -410,6 +411,11 @@ closetGrid.addEventListener("click", (event) => {
   const editButton = event.target.closest("[data-edit-id]");
   if (editButton) {
     openEditDialog(editButton.dataset.editId);
+  }
+
+  const editCollageButton = event.target.closest("[data-edit-collage]");
+  if (editCollageButton) {
+    loadCollageForEditing(editCollageButton.dataset.editCollage);
   }
 });
 
@@ -1451,11 +1457,20 @@ function createCollageCard(collage) {
     const img = document.createElement("img");
     img.src = piece.photo;
     img.alt = piece.name;
+    img.style.position = "absolute";
+    img.style.objectFit = "contain";
+    img.style.padding = "2px";
     if (layout) {
-      img.style.left = `${clamp((layout.x / 500) * 100, 0, 62)}%`;
-      img.style.top = `${clamp((layout.y / 500) * 100, 0, 58)}%`;
-      img.style.width = `${clamp((layout.size || 130) / 500 * 100, 14, 44)}%`;
+      const scaledSize = clamp((layout.size || 130) / 500 * 100, 12, 48);
+      img.style.left = `${clamp(layout.x / 500 * 100, 0, 100 - scaledSize)}%`;
+      img.style.top = `${clamp(layout.y / 500 * 100, 0, 100 - scaledSize)}%`;
+      img.style.width = `${scaledSize}%`;
       img.style.zIndex = String(layout.z || index);
+    } else {
+      img.style.width = "35%";
+      img.style.left = `${(index % 3) * 30}%`;
+      img.style.top = `${Math.floor(index / 3) * 45}%`;
+      img.style.zIndex = String(index);
     }
     preview.append(img);
   });
@@ -1470,13 +1485,50 @@ function createCollageCard(collage) {
     <p class="outfit-piece-count">${pieces.length} pieces</p>
   `;
   const deleteBtn = document.createElement("button");
-  deleteBtn.className = "delete-item text-button";
+  deleteBtn.className = "delete-item delete-button";
   deleteBtn.dataset.deleteCollage = collage.id;
   deleteBtn.textContent = "Remove";
   body.append(deleteBtn);
 
+  const editBtn = document.createElement("button");
+  editBtn.className = "edit-button";
+  editBtn.dataset.editCollage = collage.id;
+  editBtn.type = "button";
+  editBtn.textContent = "Edit";
+  body.append(editBtn);
+
   article.append(preview, body);
   return article;
+}
+
+function loadCollageForEditing(id) {
+  const collage = savedCollages.find((c) => c.id === id);
+  if (!collage) return;
+
+  editingCollageId = id;
+  collageBackground = collage.background || "#c9a87c";
+  collageCanvas.style.background = collageBackground;
+  bgSwatches.forEach((s) => s.classList.toggle("active", s.dataset.bgColor === collageBackground));
+
+  const allItems = getAllClosetItems();
+  collagePieces = (collage.layout || []).map((entry) => ({
+    canvasId: crypto.randomUUID(),
+    itemId: entry.itemId,
+    x: entry.x,
+    y: entry.y,
+    z: entry.z || 0,
+    size: entry.size || 130,
+    photo: allItems.find((item) => item.id === entry.itemId)?.photo || "",
+    name: allItems.find((item) => item.id === entry.itemId)?.name || "",
+  }));
+
+  collageNameInput.value = collage.name;
+
+  savedCollages = savedCollages.filter((c) => c.id !== id);
+  localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
+
+  renderCollageCanvas();
+  showView("collage");
 }
 
 /*
