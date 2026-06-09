@@ -111,6 +111,7 @@ const starterWardrobeItems = [
   createStarterItem("starter-black-slides", "Black slide sandals", "Shoes", "images/practice/black-slides.png", ["black"], ["slides", "sandals", "casual"]),
   createStarterItem("starter-brown-black-sneakers", "Brown and black low-top sneakers", "Shoes", "images/practice/brown-black-sneakers.png", ["brown", "black", "cream"], ["sneakers", "casual", "streetwear"]),
   createStarterItem("starter-hollister-puppy-sweater", "Hollister puppy sweater", "Long Sleeve Tops", "images/practice/hollister-puppy-sweater.png", ["slate blue", "cream", "tan"], ["sweater", "long sleeve", "cozy"]),
+  createStarterItem("starter-lyra-mini-dress", "Lyra mini dress", "Dresses", "images/practice/lyra-mini-dress.png", ["burgundy", "cream"], ["mini", "halter", "polka dot", "date night", "summer"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
