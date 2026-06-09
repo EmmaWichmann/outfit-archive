@@ -53,6 +53,10 @@ const saveCollageForm = document.getElementById("save-collage-form");
 const collageNameInput = document.getElementById("collage-name");
 const clearCollageButton = document.getElementById("clear-collage-canvas");
 const bgSwatches = document.querySelectorAll("[data-bg-color]");
+const savePracticeOutfitForm = document.getElementById("save-practice-outfit-form");
+const practiceOutfitNameInput = document.getElementById("practice-outfit-name");
+const exportWardrobeButton = document.getElementById("export-wardrobe");
+const importWardrobeInput = document.getElementById("import-wardrobe");
 const editDialog = document.getElementById("edit-dialog");
 const editForm = document.getElementById("edit-form");
 const editItemIdInput = document.getElementById("edit-item-id");
@@ -238,8 +242,20 @@ collageCanvas.addEventListener("pointerup", () => {
   if (collagePointerDrag) {
     collagePointerDrag.piece.z = Math.max(0, ...collagePieces.map((p) => p.z || 0)) + 1;
     collagePointerDrag = null;
+    renderCollageCanvas();
   }
 });
+
+collageCanvas.addEventListener("pointercancel", () => {
+  if (!collagePointerDrag) return;
+  collagePointerDrag.piece.z = Math.max(0, ...collagePieces.map((p) => p.z || 0)) + 1;
+  collagePointerDrag = null;
+  renderCollageCanvas();
+});
+
+savePracticeOutfitForm.addEventListener("submit", savePracticeOutfit);
+exportWardrobeButton.addEventListener("click", exportWardrobe);
+importWardrobeInput.addEventListener("change", importWardrobe);
 
 saveCollageForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -500,7 +516,7 @@ function renderApp() {
   renderCollageTray();
   renderVibeTabs();
   renderPracticeCarousels();
-  renderTrash();
+  updateTrashSummary();
   updateClosetActionButtons();
 }
 
@@ -732,6 +748,7 @@ function deleteOutfit(id) {
   localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
   saveClosetAndTrash();
   renderApp();
+  renderTrashIfOpen();
 }
 
 function deleteCollage(id) {
@@ -742,6 +759,7 @@ function deleteCollage(id) {
   localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
   saveClosetAndTrash();
   renderApp();
+  renderTrashIfOpen();
 }
 
 function moveItemToTrash(item, recordAction) {
@@ -765,6 +783,7 @@ function moveItemToTrash(item, recordAction) {
   }
 
   renderApp();
+  renderTrashIfOpen();
 }
 
 function restoreItem(id, recordAction = true) {
@@ -795,6 +814,7 @@ function restoreItem(id, recordAction = true) {
 
   saveClosetAndTrash();
   renderApp();
+  renderTrashIfOpen();
 }
 
 function emptyTrash() {
@@ -810,6 +830,7 @@ function emptyTrash() {
   redoClosetActions = [];
   saveClosetAndTrash();
   renderApp();
+  renderTrashIfOpen();
 }
 
 function recordClosetAction(type, item) {
@@ -887,6 +908,16 @@ function renderTrash() {
   emptyTrashButton.disabled = trashedItems.length === 0;
 }
 
+function updateTrashSummary() {
+  trashCount.textContent = trashedItems.length;
+}
+
+function renderTrashIfOpen() {
+  if (trashDialog.open) {
+    renderTrash();
+  }
+}
+
 function updateClosetActionButtons() {
   undoClosetButton.disabled = undoClosetActions.length === 0;
   redoClosetButton.disabled = redoClosetActions.length === 0;
@@ -920,7 +951,7 @@ function openEditDialog(id) {
   const picker = document.getElementById("edit-tag-picker");
   picker.innerHTML = "";
   const currentTags = item.tags || [];
-  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all");
+  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all" && tab.filter !== "favorites");
 
   availableVibes.forEach((tab) => {
     const chip = document.createElement("button");
@@ -965,6 +996,52 @@ function setPracticeMode(mode) {
   });
   practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
   renderPracticeCarousels();
+}
+
+function getCurrentPracticePieces() {
+  if (practiceOutfitMode === "dress") {
+    const dresses = getCarouselItems("dress");
+    const shoes = getCarouselItems("shoe");
+    return [
+      dresses[wrapIndex(practiceIndices.dress, dresses.length)],
+      shoes[wrapIndex(practiceIndices.shoe, shoes.length)],
+    ].filter((item) => item?.id);
+  }
+
+  const tops = getCarouselItems("top");
+  const bottoms = getCarouselItems("bottom");
+  const shoes = getCarouselItems("shoe");
+  return [
+    tops[wrapIndex(practiceIndices.top, tops.length)],
+    bottoms[wrapIndex(practiceIndices.bottom, bottoms.length)],
+    shoes[wrapIndex(practiceIndices.shoe, shoes.length)],
+  ].filter((item) => item?.id);
+}
+
+function savePracticeOutfit(event) {
+  event.preventDefault();
+
+  const name = practiceOutfitNameInput.value.trim();
+  const pieces = getCurrentPracticePieces();
+
+  if (!name || pieces.length === 0) {
+    practiceOutfitNameInput.focus();
+    return;
+  }
+
+  savedOutfits.unshift({
+    id: crypto.randomUUID(),
+    name,
+    pieceIds: pieces.map((item) => item.id),
+    createdAt: new Date().toISOString(),
+  });
+  localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
+  practiceOutfitNameInput.value = "";
+  activeCategory = "Full Outfits";
+  categoryFilters.querySelectorAll(".filter-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.category === activeCategory);
+  });
+  renderApp();
 }
 
 function getPracticeItems(categories) {
@@ -1197,6 +1274,89 @@ function readStorage(key) {
   } catch {
     return [];
   }
+}
+
+function exportWardrobe() {
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: {
+      items: wardrobeItems,
+      savedOutfits,
+      hiddenStarterItemIds,
+      trashedItems,
+      savedCollages,
+      vibeTabs,
+    },
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  const date = new Date().toISOString().slice(0, 10);
+  link.href = URL.createObjectURL(blob);
+  link.download = `outfit-archive-backup-${date}.json`;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
+}
+
+function importWardrobe() {
+  const file = importWardrobeInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    try {
+      const backup = JSON.parse(reader.result);
+      const data = backup?.data;
+      const requiredLists = [
+        data?.items,
+        data?.savedOutfits,
+        data?.hiddenStarterItemIds,
+        data?.trashedItems,
+        data?.savedCollages,
+      ];
+
+      if (!data || requiredLists.some((list) => !Array.isArray(list))) {
+        throw new Error("Invalid backup");
+      }
+
+      if (!window.confirm("Import this backup and replace the wardrobe currently saved in this browser?")) {
+        return;
+      }
+
+      localStorage.setItem(storageKey, JSON.stringify(data.items));
+      localStorage.setItem(outfitsKey, JSON.stringify(data.savedOutfits));
+      localStorage.setItem(hiddenStarterItemsKey, JSON.stringify(data.hiddenStarterItemIds));
+      localStorage.setItem(trashItemsKey, JSON.stringify(data.trashedItems));
+      localStorage.setItem(collagesKey, JSON.stringify(data.savedCollages));
+      if (Array.isArray(data.vibeTabs)) {
+        localStorage.setItem(vibeTabsKey, JSON.stringify(data.vibeTabs));
+      }
+
+      wardrobeItems = readStorage(storageKey);
+      savedOutfits = readStorage(outfitsKey);
+      hiddenStarterItemIds = readStorage(hiddenStarterItemsKey);
+      trashedItems = readStorage(trashItemsKey);
+      savedCollages = readStorage(collagesKey);
+      const importedVibes = readStorage(vibeTabsKey);
+      vibeTabs = importedVibes.length > 0 ? importedVibes : [...defaultVibeTabs];
+      activeVibe = "vibe-all";
+      activeCategory = "All";
+      searchTerm = "";
+      searchInput.value = "";
+      categoryFilters.querySelectorAll(".filter-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.category === "All");
+      });
+      undoClosetActions = [];
+      redoClosetActions = [];
+      collagePieces = [];
+      renderApp();
+    } catch {
+      window.alert("This file is not a valid Outfit Archive backup.");
+    } finally {
+      importWardrobeInput.value = "";
+    }
+  });
+  reader.readAsText(file);
 }
 
 function parseList(value) {

@@ -496,6 +496,25 @@ h3 {
   cursor: pointer;
 }
 
+.practice-save-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  border-top: 3px solid var(--ink);
+  padding: 14px;
+  background: #f9f5ed;
+}
+
+.practice-save-form input {
+  width: 100%;
+  min-height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #fffdf7;
+  color: var(--ink);
+}
+
 .closet-toolbar {
   display: flex;
   justify-content: space-between;
@@ -506,6 +525,7 @@ h3 {
 
 .closet-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin: -10px 0 20px;
@@ -518,6 +538,11 @@ h3 {
   background: rgba(255, 253, 247, 0.58);
   color: var(--ink);
   cursor: pointer;
+}
+
+.import-button {
+  display: inline-flex;
+  align-items: center;
 }
 
 .utility-button:disabled {
@@ -1530,6 +1555,10 @@ Add hover animations for outfit cards here.
   }
 
   .save-outfit-form {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-save-form {
     grid-template-columns: 1fr;
   }
 

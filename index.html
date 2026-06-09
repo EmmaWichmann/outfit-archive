@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=0.9.0" />
-    <script src="script.js?v=0.9.0" defer></script>
+    <link rel="stylesheet" href="style.css?v=0.9.1" />
+    <script src="script.js?v=0.9.1" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -130,6 +130,13 @@
                 <div class="practice-carousels" id="practice-carousels"></div>
               </div>
 
+              <form class="practice-save-form" id="save-practice-outfit-form">
+                <label>
+                  <span class="visually-hidden">Outfit name</span>
+                  <input id="practice-outfit-name" type="text" placeholder="Name this outfit..." maxlength="60" required />
+                </label>
+                <button class="primary-button" type="submit"><span>Save this outfit</span></button>
+              </form>
             </div>
           </section>
 
@@ -152,6 +159,9 @@
           <div class="closet-actions" aria-label="Closet history and trash">
             <button class="utility-button" id="undo-closet-action" type="button" disabled>&#x21b6; Undo</button>
             <button class="utility-button" id="redo-closet-action" type="button" disabled>&#x21b7; Redo</button>
+            <button class="utility-button" id="export-wardrobe" type="button">Export wardrobe</button>
+            <label class="utility-button import-button" for="import-wardrobe">Import wardrobe</label>
+            <input class="visually-hidden" id="import-wardrobe" type="file" accept="application/json,.json" />
             <button class="utility-button" id="open-trash" type="button">
               Trash <span id="trash-count">0</span>
             </button>
