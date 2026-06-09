@@ -41,23 +41,13 @@
           </button>
           <button
             class="nav-button"
-            data-view-target="builder"
-            type="button"
-            role="tab"
-            aria-controls="mix-match-section"
-            aria-selected="false"
-          >
-            <span>02</span><strong>Mix &amp; Match</strong>
-          </button>
-          <button
-            class="nav-button"
             data-view-target="suggestions"
             type="button"
             role="tab"
             aria-controls="suggestions-section"
             aria-selected="false"
           >
-            <span>03</span><strong>Suggestions</strong>
+            <span>02</span><strong>Suggestions</strong>
           </button>
           <button
             class="nav-button"
@@ -67,7 +57,7 @@
             aria-controls="collage-section"
             aria-selected="false"
           >
-            <span>04</span><strong>Collage</strong>
+            <span>03</span><strong>Collage</strong>
           </button>
         </nav>
 
@@ -254,50 +244,6 @@
             <h3>Your archive is ready.</h3>
             <p>Add your first piece to begin building a private visual wardrobe.</p>
             <button class="text-button" data-open-dialog type="button">Add the first piece</button>
-          </div>
-        </section>
-
-        <section
-          class="workspace-section"
-          id="mix-match-section"
-          data-view="builder"
-          role="tabpanel"
-          hidden
-        >
-          <header class="section-intro">
-            <p class="eyebrow">The dressing room</p>
-            <h2>Build a full outfit.</h2>
-            <p>Tap a piece to add it, then drag it into place. Layer tops, add shoes and accessories, and save the finished look.</p>
-          </header>
-
-          <div class="builder-layout">
-            <aside class="piece-tray">
-              <div class="tray-heading">
-                <h3>Your pieces</h3>
-                <p>Tap to add. Drag to arrange.</p>
-              </div>
-              <div class="tray-items" id="tray-items"></div>
-            </aside>
-
-            <div class="outfit-canvas-wrap">
-              <div class="builder-actions">
-                <p id="builder-status" role="status">Start by tapping a clothing piece.</p>
-                <button class="utility-button" id="clear-outfit-canvas" type="button">Clear canvas</button>
-              </div>
-              <div class="outfit-canvas" id="outfit-canvas" tabindex="0">
-                <div class="canvas-note">
-                  <span>+</span>
-                  <p>Tap clothing on the left to build your outfit</p>
-                </div>
-              </div>
-              <form class="save-outfit-form" id="save-outfit-form">
-                <label>
-                  <span class="visually-hidden">Outfit name</span>
-                  <input id="outfit-name" type="text" placeholder="Name this look..." required />
-                </label>
-                <button class="primary-button" type="submit"><span>Save outfit</span></button>
-              </form>
-            </div>
           </div>
         </section>
 
