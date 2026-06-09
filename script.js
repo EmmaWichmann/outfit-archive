@@ -41,6 +41,8 @@ const outfitCount = document.getElementById("outfit-count");
 const favoriteCount = document.getElementById("favorite-count");
 const practiceTopImage = document.getElementById("practice-top-image");
 const practiceTopName = document.getElementById("practice-top-name");
+const practiceSecondTopImage = document.getElementById("practice-second-top-image");
+const practiceSecondTopName = document.getElementById("practice-second-top-name");
 const practiceBottomImage = document.getElementById("practice-bottom-image");
 const practiceBottomName = document.getElementById("practice-bottom-name");
 const practiceDressImage = document.getElementById("practice-dress-image");
@@ -62,6 +64,11 @@ const closeTrashButton = document.getElementById("close-trash");
 const trashList = document.getElementById("trash-list");
 const trashEmpty = document.getElementById("trash-empty");
 const emptyTrashButton = document.getElementById("empty-trash");
+const secondTopLevel = document.querySelector("[data-optional-layer]");
+const toggleSecondTopButton = document.getElementById("toggle-second-top");
+const removeSecondTopButton = document.getElementById("remove-second-top");
+const clearOutfitCanvasButton = document.getElementById("clear-outfit-canvas");
+const builderStatus = document.getElementById("builder-status");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
@@ -76,11 +83,14 @@ let draggedItemId = "";
 let canvasPieces = [];
 let canvasDragId = "";
 let practiceTopIndex = 0;
+let practiceSecondTopIndex = 2;
 let practiceBottomIndex = 0;
 let practiceDressIndex = 0;
 let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
 let activeTopType = "all";
+let showSecondTop = false;
+let pointerDrag = null;
 
 const starterWardrobeItems = [
   createStarterItem("starter-ivory-blouse", "Ivory blouse", "Short Sleeve Tops", "images/practice/ivory-blouse.png", ["ivory"], ["short sleeve", "classic"]),
@@ -99,6 +109,7 @@ const starterWardrobeItems = [
   createStarterItem("starter-black-ribbed-tank", "Black ribbed tank", "Short Sleeve Tops", "images/practice/black-ribbed-tank.png", ["black"], ["tank", "sleeveless", "casual"]),
   createStarterItem("starter-black-slides", "Black slide sandals", "Shoes", "images/practice/black-slides.png", ["black"], ["slides", "sandals", "casual"]),
   createStarterItem("starter-brown-black-sneakers", "Brown and black low-top sneakers", "Shoes", "images/practice/brown-black-sneakers.png", ["brown", "black", "cream"], ["sneakers", "casual", "streetwear"]),
+  createStarterItem("starter-hollister-puppy-sweater", "Hollister puppy sweater", "Long Sleeve Tops", "images/practice/hollister-puppy-sweater.png", ["slate blue", "cream", "tan"], ["sweater", "long sleeve", "cozy"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
@@ -117,6 +128,19 @@ navButtons.forEach((button) => {
 openDialogButton.addEventListener("click", openItemDialog);
 emptyAddButton.addEventListener("click", openItemDialog);
 closeDialogButton.addEventListener("click", closeItemDialog);
+toggleSecondTopButton.addEventListener("click", () => {
+  showSecondTop = true;
+  renderPracticeOutfit();
+});
+removeSecondTopButton.addEventListener("click", () => {
+  showSecondTop = false;
+  renderPracticeOutfit();
+});
+clearOutfitCanvasButton.addEventListener("click", () => {
+  canvasPieces = [];
+  renderCanvas();
+  builderStatus.textContent = "Canvas cleared. Tap a piece to start again.";
+});
 openTrashButton.addEventListener("click", () => {
   renderTrash();
   trashDialog.showModal();
@@ -245,6 +269,17 @@ trayItems.addEventListener("dragstart", (event) => {
   draggedItemId = piece.dataset.itemId;
 });
 
+trayItems.addEventListener("click", (event) => {
+  const piece = event.target.closest("[data-item-id]");
+
+  if (!piece) {
+    return;
+  }
+
+  addItemToCanvas(piece.dataset.itemId);
+  builderStatus.textContent = "Added. Drag the piece to position it.";
+});
+
 outfitCanvas.addEventListener("dragover", (event) => {
   event.preventDefault();
   outfitCanvas.classList.add("drag-over");
@@ -274,13 +309,60 @@ outfitCanvas.addEventListener("drop", (event) => {
 
 outfitCanvas.addEventListener("click", (event) => {
   const removeButton = event.target.closest("[data-remove-piece]");
+  const forwardButton = event.target.closest("[data-bring-forward]");
 
-  if (!removeButton) {
+  if (removeButton) {
+    canvasPieces = canvasPieces.filter((piece) => piece.canvasId !== removeButton.dataset.removePiece);
+    renderCanvas();
+  }
+
+  if (forwardButton) {
+    const piece = canvasPieces.find((item) => item.canvasId === forwardButton.dataset.bringForward);
+    if (piece) {
+      piece.z = Math.max(0, ...canvasPieces.map((item) => item.z || 0)) + 1;
+      renderCanvas();
+    }
+  }
+});
+
+outfitCanvas.addEventListener("pointerdown", (event) => {
+  const pieceNode = event.target.closest(".canvas-piece");
+
+  if (!pieceNode || event.target.closest("button")) {
     return;
   }
 
-  canvasPieces = canvasPieces.filter((piece) => piece.canvasId !== removeButton.dataset.removePiece);
-  renderCanvas();
+  const piece = canvasPieces.find((item) => item.canvasId === pieceNode.dataset.canvasId);
+  if (!piece) {
+    return;
+  }
+
+  const rect = outfitCanvas.getBoundingClientRect();
+  pointerDrag = {
+    piece,
+    offsetX: event.clientX - rect.left - piece.x,
+    offsetY: event.clientY - rect.top - piece.y,
+  };
+  pieceNode.setPointerCapture(event.pointerId);
+});
+
+outfitCanvas.addEventListener("pointermove", (event) => {
+  if (!pointerDrag) {
+    return;
+  }
+
+  const rect = outfitCanvas.getBoundingClientRect();
+  pointerDrag.piece.x = clamp(event.clientX - rect.left - pointerDrag.offsetX, 0, rect.width - 110);
+  pointerDrag.piece.y = clamp(event.clientY - rect.top - pointerDrag.offsetY, 0, rect.height - 140);
+  const pieceNode = outfitCanvas.querySelector(`[data-canvas-id="${pointerDrag.piece.canvasId}"]`);
+  if (pieceNode) {
+    pieceNode.style.left = `${pointerDrag.piece.x}px`;
+    pieceNode.style.top = `${pointerDrag.piece.y}px`;
+  }
+});
+
+outfitCanvas.addEventListener("pointerup", () => {
+  pointerDrag = null;
 });
 
 saveOutfitForm.addEventListener("submit", (event) => {
@@ -295,6 +377,7 @@ saveOutfitForm.addEventListener("submit", (event) => {
     id: crypto.randomUUID(),
     name: outfitNameInput.value.trim(),
     pieceIds: canvasPieces.map((piece) => piece.itemId),
+    layout: canvasPieces.map(({ itemId, x, y, z }) => ({ itemId, x, y, z: z || 0 })),
     favorite: false,
     createdAt: new Date().toISOString(),
   };
@@ -469,10 +552,16 @@ function createOutfitCard(outfit) {
   const images = document.createElement("div");
   images.className = "saved-outfit-images";
 
-  pieces.forEach((piece) => {
+  pieces.forEach((piece, index) => {
     const image = document.createElement("img");
     image.src = piece.photo;
     image.alt = piece.name;
+    const layoutPiece = outfit.layout?.[index];
+    if (layoutPiece) {
+      image.style.left = `${clamp((layoutPiece.x / 560) * 100, 0, 72)}%`;
+      image.style.top = `${clamp((layoutPiece.y / 560) * 100, 0, 68)}%`;
+      image.style.zIndex = String(layoutPiece.z || index);
+    }
     images.append(image);
   });
 
@@ -483,6 +572,7 @@ function createOutfitCard(outfit) {
       <h3 class="card-name">${escapeHtml(outfit.name)}</h3>
       <span class="card-category">Full Outfits</span>
     </div>
+    <p class="outfit-piece-count">${pieces.length} pieces</p>
   `;
 
   article.append(images, body);
@@ -507,6 +597,7 @@ function renderTray() {
     piece.innerHTML = `
       <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
       <p>${escapeHtml(item.name)}</p>
+      <span>Tap to add</span>
     `;
     trayItems.append(piece);
   });
@@ -514,11 +605,13 @@ function renderTray() {
 
 function addItemToCanvas(itemId, event) {
   const rect = outfitCanvas.getBoundingClientRect();
+  const stagger = canvasPieces.length % 5;
   canvasPieces.push({
     canvasId: crypto.randomUUID(),
     itemId,
-    x: event.clientX - rect.left - 75,
-    y: event.clientY - rect.top - 95,
+    x: event ? event.clientX - rect.left - 75 : rect.width / 2 - 75 + stagger * 12,
+    y: event ? event.clientY - rect.top - 95 : 45 + stagger * 34,
+    z: canvasPieces.length,
   });
   renderCanvas();
 }
@@ -550,11 +643,14 @@ function renderCanvas() {
 
     const node = document.createElement("article");
     node.className = "canvas-piece";
+    node.dataset.canvasId = piece.canvasId;
     node.draggable = true;
     node.style.left = `${piece.x}px`;
     node.style.top = `${piece.y}px`;
+    node.style.zIndex = String(piece.z || 0);
     node.innerHTML = `
       <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+      <button class="canvas-forward" data-bring-forward="${piece.canvasId}" type="button" aria-label="Bring ${escapeHtml(item.name)} forward">↑</button>
       <button data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
     `;
     node.addEventListener("dragstart", () => {
@@ -818,6 +914,8 @@ function cyclePracticePiece(pieceType, direction) {
 
   if (pieceType === "top") {
     practiceTopIndex = wrapIndex(practiceTopIndex + direction, tops.length);
+  } else if (pieceType === "second-top") {
+    practiceSecondTopIndex = wrapIndex(practiceSecondTopIndex + direction, tops.length);
   } else if (pieceType === "bottom") {
     practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, bottoms.length);
   } else if (pieceType === "dress") {
@@ -841,6 +939,7 @@ function renderPracticeOutfit() {
   practiceShoeIndex = wrapIndex(practiceShoeIndex, shoeOptions.length);
 
   const top = tops[practiceTopIndex] || createEmptyPracticeItem("Add a top");
+  const secondTop = tops[practiceSecondTopIndex] || createEmptyPracticeItem("Add a layered top");
   const bottom = bottoms[practiceBottomIndex] || createEmptyPracticeItem("Add a bottom");
   const dress = dresses[practiceDressIndex] || createEmptyPracticeItem("Add a dress");
   const shoes = shoeOptions[practiceShoeIndex] || createEmptyPracticeItem("Add shoes");
@@ -848,6 +947,11 @@ function renderPracticeOutfit() {
   practiceTopImage.src = top.photo;
   practiceTopImage.alt = top.name;
   practiceTopName.textContent = top.name;
+  practiceSecondTopImage.src = secondTop.photo;
+  practiceSecondTopImage.alt = secondTop.name;
+  practiceSecondTopName.textContent = secondTop.name;
+  secondTopLevel.hidden = practiceOutfitMode === "dress" || !showSecondTop;
+  toggleSecondTopButton.hidden = showSecondTop;
   practiceBottomImage.src = bottom.photo;
   practiceBottomImage.alt = bottom.name;
   practiceBottomName.textContent = bottom.name;
@@ -904,7 +1008,7 @@ function setPracticeMode(mode) {
   const showDress = practiceOutfitMode === "dress";
 
   separatesLevels.forEach((level) => {
-    level.hidden = showDress;
+    level.hidden = showDress || (level.hasAttribute("data-optional-layer") && !showSecondTop);
   });
   dressLevel.hidden = !showDress;
   outfitModeButtons.forEach((button) => {
@@ -918,6 +1022,10 @@ function wrapIndex(index, length) {
   }
 
   return (index + length) % length;
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.min(Math.max(value, minimum), maximum);
 }
 
 function createStarterItem(id, name, category, photo, colors, tags) {

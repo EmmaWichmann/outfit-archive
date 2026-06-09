@@ -417,6 +417,27 @@ h3 {
   color: white;
 }
 
+.layer-toggle,
+.layer-remove {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #fffdf7;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.piece-selector:has(.top-type-filter) .layer-toggle {
+  top: 52px;
+}
+
+.optional-layer {
+  background: #ddd6ca;
+}
+
 .selector-image {
   width: min(260px, 72%);
   height: 185px;
@@ -751,6 +772,28 @@ Add hover animations for outfit cards here.
   font-size: 0.72rem;
 }
 
+.tray-piece span {
+  display: block;
+  padding: 0 9px 9px;
+  color: var(--mauve);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.builder-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.builder-actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .outfit-canvas {
   position: relative;
   min-height: 560px;
@@ -786,6 +829,7 @@ Add hover animations for outfit cards here.
   width: 150px;
   box-shadow: var(--shadow);
   cursor: move;
+  touch-action: none;
 }
 
 .canvas-piece img {
@@ -806,6 +850,10 @@ Add hover animations for outfit cards here.
   border-radius: 50%;
   background: rgba(255, 253, 247, 0.85);
   cursor: pointer;
+}
+
+.canvas-piece .canvas-forward {
+  right: 43px;
 }
 
 .save-outfit-form {
@@ -865,6 +913,48 @@ Add hover animations for outfit cards here.
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.saved-outfit-images {
+  position: relative;
+  display: block;
+  min-height: 360px;
+  overflow: hidden;
+  background: #d7b68d;
+}
+
+.saved-outfit-images img {
+  position: absolute;
+  width: 42%;
+  height: 48%;
+  padding: 5px;
+  object-fit: contain;
+}
+
+.saved-outfit-images img:nth-child(1) {
+  left: 8%;
+  top: 5%;
+}
+
+.saved-outfit-images img:nth-child(2) {
+  left: 48%;
+  top: 20%;
+}
+
+.saved-outfit-images img:nth-child(3) {
+  left: 20%;
+  top: 49%;
+}
+
+.saved-outfit-images img:nth-child(4) {
+  left: 56%;
+  top: 52%;
+}
+
+.outfit-piece-count {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 
 .suggestion-pieces img,
@@ -1133,6 +1223,10 @@ Add hover animations for outfit cards here.
     margin: 30px 0 8px;
   }
 
+  .piece-selector:has(.top-type-filter) .layer-toggle {
+    top: 76px;
+  }
+
   .practice-presets {
     grid-template-columns: 1fr;
   }
@@ -1161,5 +1255,19 @@ Add hover animations for outfit cards here.
 
   .save-outfit-form {
     grid-template-columns: 1fr;
+  }
+
+  .tray-items {
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
+    max-height: 340px;
+  }
+
+  .outfit-canvas {
+    min-height: 520px;
+  }
+
+  .builder-actions {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

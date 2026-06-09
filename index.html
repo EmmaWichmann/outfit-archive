@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=0.6.0" />
-    <script src="script.js?v=0.6.0" defer></script>
+    <link rel="stylesheet" href="style.css?v=0.7.0" />
+    <script src="script.js?v=0.7.0" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -143,6 +143,23 @@
                   <span id="practice-top-name">Ivory blouse</span>
                   <button data-cycle-piece="top" data-direction="1" type="button" aria-label="Next top">▶</button>
                 </div>
+                <button class="layer-toggle" id="toggle-second-top" type="button">+ Add second top</button>
+              </div>
+
+              <div class="piece-selector optional-layer" data-separates-level data-optional-layer hidden>
+                <p class="piece-label">Layered top</p>
+                <button class="layer-remove" id="remove-second-top" type="button">Remove layer</button>
+                <img
+                  class="selector-image"
+                  id="practice-second-top-image"
+                  src="images/practice/blue-striped-shirt.png"
+                  alt="Blue striped shirt"
+                />
+                <div class="selector-controls">
+                  <button data-cycle-piece="second-top" data-direction="-1" type="button" aria-label="Previous layered top">◀</button>
+                  <span id="practice-second-top-name">Blue striped shirt</span>
+                  <button data-cycle-piece="second-top" data-direction="1" type="button" aria-label="Next layered top">▶</button>
+                </div>
               </div>
 
               <div class="piece-selector" data-separates-level>
@@ -239,24 +256,28 @@
         >
           <header class="section-intro">
             <p class="eyebrow">The dressing room</p>
-            <h2>Compose a look.</h2>
-            <p>Drag pieces into the canvas, rearrange them, and save combinations for later.</p>
+            <h2>Build a full outfit.</h2>
+            <p>Tap a piece to add it, then drag it into place. Layer tops, add shoes and accessories, and save the finished look.</p>
           </header>
 
           <div class="builder-layout">
             <aside class="piece-tray">
               <div class="tray-heading">
                 <h3>Your pieces</h3>
-                <p>Drag pieces onto the canvas.</p>
+                <p>Tap to add. Drag to arrange.</p>
               </div>
               <div class="tray-items" id="tray-items"></div>
             </aside>
 
             <div class="outfit-canvas-wrap">
+              <div class="builder-actions">
+                <p id="builder-status" role="status">Start by tapping a clothing piece.</p>
+                <button class="utility-button" id="clear-outfit-canvas" type="button">Clear canvas</button>
+              </div>
               <div class="outfit-canvas" id="outfit-canvas" tabindex="0">
                 <div class="canvas-note">
                   <span>+</span>
-                  <p>Drop clothing pieces here</p>
+                  <p>Tap clothing on the left to build your outfit</p>
                 </div>
               </div>
               <form class="save-outfit-form" id="save-outfit-form">
