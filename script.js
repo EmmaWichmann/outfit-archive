@@ -52,6 +52,11 @@ const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
 const topTypeButtons = document.querySelectorAll("[data-top-type]");
 const separatesLevels = document.querySelectorAll("[data-separates-level]");
 const dressLevel = document.querySelector("[data-dress-level]");
+const pajamaLevels = document.querySelectorAll("[data-pajama-level]");
+const practicePjTopImage = document.getElementById("practice-pj-top-image");
+const practicePjTopName = document.getElementById("practice-pj-top-name");
+const practicePjBottomImage = document.getElementById("practice-pj-bottom-image");
+const practicePjBottomName = document.getElementById("practice-pj-bottom-name");
 const undoClosetButton = document.getElementById("undo-closet-action");
 const redoClosetButton = document.getElementById("redo-closet-action");
 const openTrashButton = document.getElementById("open-trash");
@@ -86,6 +91,8 @@ let practiceSecondTopIndex = 2;
 let practiceBottomIndex = 0;
 let practiceDressIndex = 0;
 let practiceShoeIndex = 0;
+let practicePjTopIndex = 0;
+let practicePjBottomIndex = 0;
 let practiceOutfitMode = "separates";
 let activeTopType = "all";
 let showSecondTop = false;
@@ -863,6 +870,10 @@ function cyclePracticePiece(pieceType, direction) {
     practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, bottoms.length);
   } else if (pieceType === "dress") {
     practiceDressIndex = wrapIndex(practiceDressIndex + direction, dresses.length);
+  } else if (pieceType === "pj-top") {
+    practicePjTopIndex = wrapIndex(practicePjTopIndex + direction, tops.length);
+  } else if (pieceType === "pj-bottom") {
+    practicePjBottomIndex = wrapIndex(practicePjBottomIndex + direction, bottoms.length);
   } else {
     practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, shoes.length);
   }
@@ -948,15 +959,31 @@ function getTopType(item) {
 
 function setPracticeMode(mode) {
   practiceOutfitMode = mode;
-  const showDress = practiceOutfitMode === "dress";
+  const showDress = mode === "dress";
+  const showPajamas = mode === "pajamas";
+  const showSeparates = mode === "separates";
 
   separatesLevels.forEach((level) => {
-    level.hidden = showDress || (level.hasAttribute("data-optional-layer") && !showSecondTop);
+    level.hidden = !showSeparates || (level.hasAttribute("data-optional-layer") && !showSecondTop);
   });
   dressLevel.hidden = !showDress;
+  pajamaLevels.forEach((level) => { level.hidden = !showPajamas; });
   outfitModeButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.outfitMode === practiceOutfitMode);
+    button.classList.toggle("active", button.dataset.outfitMode === mode);
   });
+
+  if (showPajamas) {
+    const tops = getPracticeItems(["Tops", "Short Sleeve Tops", "Long Sleeve Tops"]);
+    const bottoms = getPracticeItems(["Bottoms"]);
+    const pjTop = tops[practicePjTopIndex] || createEmptyPracticeItem("Add a PJ top");
+    const pjBottom = bottoms[practicePjBottomIndex] || createEmptyPracticeItem("Add a PJ bottom");
+    practicePjTopImage.src = pjTop.photo;
+    practicePjTopImage.alt = pjTop.name;
+    practicePjTopName.textContent = pjTop.name;
+    practicePjBottomImage.src = pjBottom.photo;
+    practicePjBottomImage.alt = pjBottom.name;
+    practicePjBottomName.textContent = pjBottom.name;
+  }
 }
 
 function wrapIndex(index, length) {
