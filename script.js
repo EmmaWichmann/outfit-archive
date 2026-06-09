@@ -13,6 +13,7 @@ const storageKey = "outfit-archive-items";
 const outfitsKey = "outfit-archive-saved-outfits";
 const hiddenStarterItemsKey = "outfit-archive-hidden-starter-items";
 const trashItemsKey = "outfit-archive-trash-items";
+const collagesKey = "outfit-archive-saved-collages";
 
 const navButtons = document.querySelectorAll("[data-view-target]");
 const sections = document.querySelectorAll("[data-view]");
@@ -69,11 +70,18 @@ const toggleSecondTopButton = document.getElementById("toggle-second-top");
 const removeSecondTopButton = document.getElementById("remove-second-top");
 const clearOutfitCanvasButton = document.getElementById("clear-outfit-canvas");
 const builderStatus = document.getElementById("builder-status");
+const collageTrayItems = document.getElementById("collage-tray-items");
+const collageCanvas = document.getElementById("collage-canvas");
+const saveCollageForm = document.getElementById("save-collage-form");
+const collageNameInput = document.getElementById("collage-name");
+const clearCollageButton = document.getElementById("clear-collage-canvas");
+const bgSwatches = document.querySelectorAll("[data-bg-color]");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
 let hiddenStarterItemIds = readStorage(hiddenStarterItemsKey);
 let trashedItems = readStorage(trashItemsKey);
+let savedCollages = readStorage(collagesKey);
 let undoClosetActions = [];
 let redoClosetActions = [];
 let activeCategory = "All";
@@ -91,6 +99,9 @@ let practiceOutfitMode = "separates";
 let activeTopType = "all";
 let showSecondTop = false;
 let pointerDrag = null;
+let collagePieces = [];
+let collageBackground = "#c9a87c";
+let collagePointerDrag = null;
 
 const starterWardrobeItems = [
   createStarterItem("starter-ivory-blouse", "Ivory blouse", "Short Sleeve Tops", "images/practice/ivory-blouse.png", ["ivory"], ["short sleeve", "classic"]),
@@ -140,6 +151,104 @@ clearOutfitCanvasButton.addEventListener("click", () => {
   canvasPieces = [];
   renderCanvas();
   builderStatus.textContent = "Canvas cleared. Tap a piece to start again.";
+});
+
+bgSwatches.forEach((swatch) => {
+  swatch.addEventListener("click", () => {
+    collageBackground = swatch.dataset.bgColor;
+    collageCanvas.style.background = collageBackground;
+    bgSwatches.forEach((s) => s.classList.toggle("active", s === swatch));
+  });
+});
+
+clearCollageButton.addEventListener("click", () => {
+  collagePieces = [];
+  renderCollageCanvas();
+});
+
+collageTrayItems.addEventListener("click", (event) => {
+  const piece = event.target.closest("[data-item-id]");
+  if (!piece) return;
+  addItemToCollage(piece.dataset.itemId);
+});
+
+collageCanvas.addEventListener("click", (event) => {
+  const removeButton = event.target.closest("[data-remove-piece]");
+  const resizeButton = event.target.closest("[data-resize-piece]");
+
+  if (removeButton) {
+    collagePieces = collagePieces.filter((piece) => piece.canvasId !== removeButton.dataset.removePiece);
+    renderCollageCanvas();
+  }
+
+  if (resizeButton) {
+    const piece = collagePieces.find((p) => p.canvasId === resizeButton.dataset.resizePiece);
+    if (piece) {
+      piece.size = clamp((piece.size || 130) + Number(resizeButton.dataset.delta), 60, 280);
+      renderCollageCanvas();
+    }
+  }
+});
+
+collageCanvas.addEventListener("pointerdown", (event) => {
+  const pieceNode = event.target.closest(".collage-piece");
+  if (!pieceNode || event.target.closest("button")) return;
+
+  const piece = collagePieces.find((item) => item.canvasId === pieceNode.dataset.canvasId);
+  if (!piece) return;
+
+  const rect = collageCanvas.getBoundingClientRect();
+  collagePointerDrag = {
+    piece,
+    offsetX: event.clientX - rect.left - piece.x,
+    offsetY: event.clientY - rect.top - piece.y,
+  };
+  pieceNode.setPointerCapture(event.pointerId);
+});
+
+collageCanvas.addEventListener("pointermove", (event) => {
+  if (!collagePointerDrag) return;
+
+  const rect = collageCanvas.getBoundingClientRect();
+  collagePointerDrag.piece.x = clamp(event.clientX - rect.left - collagePointerDrag.offsetX, 0, rect.width - 60);
+  collagePointerDrag.piece.y = clamp(event.clientY - rect.top - collagePointerDrag.offsetY, 0, rect.height - 60);
+  const pieceNode = collageCanvas.querySelector(`[data-canvas-id="${collagePointerDrag.piece.canvasId}"]`);
+  if (pieceNode) {
+    pieceNode.style.left = `${collagePointerDrag.piece.x}px`;
+    pieceNode.style.top = `${collagePointerDrag.piece.y}px`;
+  }
+});
+
+collageCanvas.addEventListener("pointerup", () => {
+  if (collagePointerDrag) {
+    collagePointerDrag.piece.z = Math.max(0, ...collagePieces.map((p) => p.z || 0)) + 1;
+    collagePointerDrag = null;
+  }
+});
+
+saveCollageForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (collagePieces.length === 0) {
+    collageNameInput.placeholder = "Add at least one piece first...";
+    return;
+  }
+
+  const collage = {
+    id: crypto.randomUUID(),
+    name: collageNameInput.value.trim(),
+    background: collageBackground,
+    pieceIds: collagePieces.map((p) => p.itemId),
+    layout: collagePieces.map(({ itemId, x, y, z, size }) => ({ itemId, x, y, z: z || 0, size: size || 130 })),
+    createdAt: new Date().toISOString(),
+  };
+
+  savedCollages.unshift(collage);
+  localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
+  collageNameInput.value = "";
+  collagePieces = [];
+  renderApp();
+  showView("closet");
 });
 openTrashButton.addEventListener("click", () => {
   renderTrash();
@@ -462,6 +571,7 @@ function renderApp() {
   renderCloset();
   renderTray();
   renderCanvas();
+  renderCollageTray();
   renderPracticeOutfit();
   renderTrash();
   updateClosetActionButtons();
@@ -470,7 +580,7 @@ function renderApp() {
 function renderStats() {
   const allItems = getAllClosetItems();
   itemCount.textContent = allItems.length;
-  outfitCount.textContent = savedOutfits.length;
+  outfitCount.textContent = savedOutfits.length + savedCollages.length;
   favoriteCount.textContent = allItems.filter((item) => item.favorite).length;
 }
 

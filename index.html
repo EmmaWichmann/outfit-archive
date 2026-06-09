@@ -339,6 +339,59 @@
             </div>
           </div>
         </section>
+        <section
+          class="workspace-section"
+          id="collage-section"
+          data-view="collage"
+          role="tabpanel"
+          hidden
+        >
+          <header class="section-intro">
+            <p class="eyebrow">The mood board</p>
+            <h2>Create a collage.</h2>
+            <p>Pick a background, tap pieces from your closet, drag them into place, and save the look.</p>
+          </header>
+
+          <div class="collage-layout">
+            <aside class="piece-tray">
+              <div class="tray-heading">
+                <h3>Your pieces</h3>
+                <p>Tap to add.</p>
+              </div>
+              <div class="tray-items" id="collage-tray-items"></div>
+            </aside>
+
+            <div class="collage-canvas-wrap">
+              <div class="collage-controls">
+                <div class="bg-palette" role="group" aria-label="Background color">
+                  <button class="bg-swatch active" data-bg-color="#c9a87c" style="background:#c9a87c" type="button" aria-label="Warm tan"></button>
+                  <button class="bg-swatch" data-bg-color="#d4c5b0" style="background:#d4c5b0" type="button" aria-label="Sand"></button>
+                  <button class="bg-swatch" data-bg-color="#b8c4b8" style="background:#b8c4b8" type="button" aria-label="Sage"></button>
+                  <button class="bg-swatch" data-bg-color="#e8d0c5" style="background:#e8d0c5" type="button" aria-label="Blush"></button>
+                  <button class="bg-swatch" data-bg-color="#c4b5c8" style="background:#c4b5c8" type="button" aria-label="Lavender"></button>
+                  <button class="bg-swatch" data-bg-color="#2f312c" style="background:#2f312c" type="button" aria-label="Ink"></button>
+                  <button class="bg-swatch bg-swatch-light" data-bg-color="#fffdf7" style="background:#fffdf7" type="button" aria-label="Ivory"></button>
+                </div>
+                <button class="utility-button" id="clear-collage-canvas" type="button">Clear</button>
+              </div>
+
+              <div class="collage-canvas" id="collage-canvas" style="background:#c9a87c">
+                <div class="canvas-note">
+                  <span>+</span>
+                  <p>Tap clothing on the left to build your collage</p>
+                </div>
+              </div>
+
+              <form class="save-outfit-form" id="save-collage-form">
+                <label>
+                  <span class="visually-hidden">Collage name</span>
+                  <input id="collage-name" type="text" placeholder="Name this look..." required />
+                </label>
+                <button class="primary-button" type="submit"><span>Save collage</span></button>
+              </form>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 
