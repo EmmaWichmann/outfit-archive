@@ -598,6 +598,12 @@ function renderCloset() {
     }
   });
 
+  savedCollages.forEach((collage) => {
+    if (activeCategory === "All" || activeCategory === "Full Outfits") {
+      closetGrid.append(createCollageCard(collage));
+    }
+  });
+
   closetEmpty.hidden = closetGrid.children.length > 0;
 }
 
@@ -1209,6 +1215,105 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function renderCollageTray() {
+  collageTrayItems.innerHTML = "";
+
+  getAllClosetItems().forEach((item) => {
+    const piece = document.createElement("article");
+    piece.className = "tray-piece";
+    piece.dataset.itemId = item.id;
+    piece.innerHTML = `
+      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+      <p>${escapeHtml(item.name)}</p>
+      <span>Tap to add</span>
+    `;
+    collageTrayItems.append(piece);
+  });
+}
+
+function addItemToCollage(itemId) {
+  const rect = collageCanvas.getBoundingClientRect();
+  const canvasWidth = rect.width || 400;
+  const stagger = collagePieces.length % 5;
+  collagePieces.push({
+    canvasId: crypto.randomUUID(),
+    itemId,
+    x: canvasWidth / 2 - 65 + stagger * 20,
+    y: 60 + stagger * 44,
+    z: collagePieces.length,
+    size: 130,
+  });
+  renderCollageCanvas();
+}
+
+function renderCollageCanvas() {
+  const note = collageCanvas.querySelector(".canvas-note");
+  collageCanvas.querySelectorAll(".collage-piece").forEach((piece) => piece.remove());
+  note.hidden = collagePieces.length > 0;
+
+  collagePieces.forEach((piece) => {
+    const item = getAllClosetItems().find((entry) => entry.id === piece.itemId);
+    if (!item) return;
+
+    const size = piece.size || 130;
+    const node = document.createElement("article");
+    node.className = "collage-piece";
+    node.dataset.canvasId = piece.canvasId;
+    node.style.left = `${piece.x}px`;
+    node.style.top = `${piece.y}px`;
+    node.style.width = `${size}px`;
+    node.style.zIndex = String(piece.z || 0);
+    node.innerHTML = `
+      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+      <button class="collage-btn collage-remove" data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
+      <button class="collage-btn collage-shrink" data-resize-piece="${piece.canvasId}" data-delta="-20" type="button" aria-label="Make smaller">−</button>
+      <button class="collage-btn collage-grow" data-resize-piece="${piece.canvasId}" data-delta="20" type="button" aria-label="Make bigger">+</button>
+    `;
+    collageCanvas.append(node);
+  });
+}
+
+function createCollageCard(collage) {
+  const article = document.createElement("article");
+  article.className = "outfit-card";
+  const allItems = getAllClosetItems();
+
+  const pieces = collage.pieceIds
+    .map((id) => allItems.find((item) => item.id === id))
+    .filter(Boolean);
+
+  const preview = document.createElement("div");
+  preview.className = "collage-preview";
+  preview.style.background = collage.background || "#c9a87c";
+
+  pieces.slice(0, 6).forEach((piece, index) => {
+    const layout = collage.layout?.[index];
+    const img = document.createElement("img");
+    img.src = piece.photo;
+    img.alt = piece.name;
+    if (layout) {
+      img.style.left = `${clamp((layout.x / 500) * 100, 0, 62)}%`;
+      img.style.top = `${clamp((layout.y / 500) * 100, 0, 58)}%`;
+      img.style.width = `${clamp((layout.size || 130) / 500 * 100, 14, 44)}%`;
+      img.style.zIndex = String(layout.z || index);
+    }
+    preview.append(img);
+  });
+
+  const body = document.createElement("div");
+  body.className = "card-body";
+  body.innerHTML = `
+    <div class="card-heading">
+      <h3 class="card-name">${escapeHtml(collage.name)}</h3>
+      <span class="card-category">Collage</span>
+    </div>
+    <p class="outfit-piece-count">${pieces.length} pieces</p>
+  `;
+
+  article.append(preview, body);
+  return article;
 }
 
 /*
