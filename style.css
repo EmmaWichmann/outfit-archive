@@ -720,12 +720,6 @@ Add hover animations for outfit cards here.
   font-style: italic;
 }
 
-.builder-layout {
-  display: grid;
-  grid-template-columns: minmax(230px, 0.65fr) minmax(360px, 1.35fr);
-  gap: 24px;
-}
-
 .piece-tray,
 .outfit-canvas-wrap,
 .suggestion-form,
@@ -780,35 +774,6 @@ Add hover animations for outfit cards here.
   font-weight: 700;
 }
 
-.builder-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.builder-actions p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.outfit-canvas {
-  position: relative;
-  min-height: 560px;
-  overflow: hidden;
-  border: 1px dashed rgba(67, 68, 59, 0.28);
-  border-radius: calc(var(--radius-lg) - 6px);
-  background:
-    linear-gradient(rgba(255, 253, 247, 0.68), rgba(255, 253, 247, 0.68)),
-    repeating-linear-gradient(90deg, transparent 0 39px, rgba(67, 68, 59, 0.05) 40px);
-}
-
-.outfit-canvas.drag-over {
-  outline: 3px solid rgba(126, 145, 118, 0.25);
-}
-
 .canvas-note {
   position: absolute;
   inset: 0;
@@ -822,38 +787,6 @@ Add hover animations for outfit cards here.
 .canvas-note span {
   font-family: "Playfair Display", serif;
   font-size: 3rem;
-}
-
-.canvas-piece {
-  position: absolute;
-  width: 150px;
-  box-shadow: var(--shadow);
-  cursor: move;
-  touch-action: none;
-}
-
-.canvas-piece img {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: contain;
-}
-
-.canvas-piece button {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  display: grid;
-  width: 30px;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 253, 247, 0.85);
-  cursor: pointer;
-}
-
-.canvas-piece .canvas-forward {
-  right: 43px;
 }
 
 .save-outfit-form {

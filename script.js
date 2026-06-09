@@ -89,7 +89,6 @@ let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
 let activeTopType = "all";
 let showSecondTop = false;
-let pointerDrag = null;
 let collagePieces = [];
 let collageBackground = "#c9a87c";
 let collagePointerDrag = null;
@@ -138,12 +137,6 @@ removeSecondTopButton.addEventListener("click", () => {
   showSecondTop = false;
   renderPracticeOutfit();
 });
-clearOutfitCanvasButton.addEventListener("click", () => {
-  canvasPieces = [];
-  renderCanvas();
-  builderStatus.textContent = "Canvas cleared. Tap a piece to start again.";
-});
-
 bgSwatches.forEach((swatch) => {
   swatch.addEventListener("click", () => {
     collageBackground = swatch.dataset.bgColor;
@@ -359,137 +352,6 @@ closetGrid.addEventListener("click", (event) => {
   }
 });
 
-trayItems.addEventListener("dragstart", (event) => {
-  const piece = event.target.closest("[data-item-id]");
-
-  if (!piece) {
-    return;
-  }
-
-  draggedItemId = piece.dataset.itemId;
-});
-
-trayItems.addEventListener("click", (event) => {
-  const piece = event.target.closest("[data-item-id]");
-
-  if (!piece) {
-    return;
-  }
-
-  addItemToCanvas(piece.dataset.itemId);
-  builderStatus.textContent = "Added. Drag the piece to position it.";
-});
-
-outfitCanvas.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  outfitCanvas.classList.add("drag-over");
-});
-
-outfitCanvas.addEventListener("dragleave", () => {
-  outfitCanvas.classList.remove("drag-over");
-});
-
-outfitCanvas.addEventListener("drop", (event) => {
-  event.preventDefault();
-  outfitCanvas.classList.remove("drag-over");
-
-  if (canvasDragId) {
-    moveCanvasPiece(canvasDragId, event);
-    canvasDragId = "";
-    return;
-  }
-
-  if (!draggedItemId) {
-    return;
-  }
-
-  addItemToCanvas(draggedItemId, event);
-  draggedItemId = "";
-});
-
-outfitCanvas.addEventListener("click", (event) => {
-  const removeButton = event.target.closest("[data-remove-piece]");
-  const forwardButton = event.target.closest("[data-bring-forward]");
-
-  if (removeButton) {
-    canvasPieces = canvasPieces.filter((piece) => piece.canvasId !== removeButton.dataset.removePiece);
-    renderCanvas();
-  }
-
-  if (forwardButton) {
-    const piece = canvasPieces.find((item) => item.canvasId === forwardButton.dataset.bringForward);
-    if (piece) {
-      piece.z = Math.max(0, ...canvasPieces.map((item) => item.z || 0)) + 1;
-      renderCanvas();
-    }
-  }
-});
-
-outfitCanvas.addEventListener("pointerdown", (event) => {
-  const pieceNode = event.target.closest(".canvas-piece");
-
-  if (!pieceNode || event.target.closest("button")) {
-    return;
-  }
-
-  const piece = canvasPieces.find((item) => item.canvasId === pieceNode.dataset.canvasId);
-  if (!piece) {
-    return;
-  }
-
-  const rect = outfitCanvas.getBoundingClientRect();
-  pointerDrag = {
-    piece,
-    offsetX: event.clientX - rect.left - piece.x,
-    offsetY: event.clientY - rect.top - piece.y,
-  };
-  pieceNode.setPointerCapture(event.pointerId);
-});
-
-outfitCanvas.addEventListener("pointermove", (event) => {
-  if (!pointerDrag) {
-    return;
-  }
-
-  const rect = outfitCanvas.getBoundingClientRect();
-  pointerDrag.piece.x = clamp(event.clientX - rect.left - pointerDrag.offsetX, 0, rect.width - 110);
-  pointerDrag.piece.y = clamp(event.clientY - rect.top - pointerDrag.offsetY, 0, rect.height - 140);
-  const pieceNode = outfitCanvas.querySelector(`[data-canvas-id="${pointerDrag.piece.canvasId}"]`);
-  if (pieceNode) {
-    pieceNode.style.left = `${pointerDrag.piece.x}px`;
-    pieceNode.style.top = `${pointerDrag.piece.y}px`;
-  }
-});
-
-outfitCanvas.addEventListener("pointerup", () => {
-  pointerDrag = null;
-});
-
-saveOutfitForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  if (canvasPieces.length === 0) {
-    outfitNameInput.placeholder = "Add at least one piece first...";
-    return;
-  }
-
-  const savedOutfit = {
-    id: crypto.randomUUID(),
-    name: outfitNameInput.value.trim(),
-    pieceIds: canvasPieces.map((piece) => piece.itemId),
-    layout: canvasPieces.map(({ itemId, x, y, z }) => ({ itemId, x, y, z: z || 0 })),
-    favorite: false,
-    createdAt: new Date().toISOString(),
-  };
-
-  savedOutfits.unshift(savedOutfit);
-  localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
-  outfitNameInput.value = "";
-  canvasPieces = [];
-  renderApp();
-  showView("closet");
-});
-
 suggestionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   renderSuggestions(occasionInput.value);
@@ -560,8 +422,6 @@ function showView(viewName) {
 function renderApp() {
   renderStats();
   renderCloset();
-  renderTray();
-  renderCanvas();
   renderCollageTray();
   renderPracticeOutfit();
   renderTrash();
@@ -640,10 +500,6 @@ function createItemCard(item) {
     tagList.append(createTag(tag));
   });
 
-  card.addEventListener("dragstart", () => {
-    draggedItemId = item.id;
-  });
-
   return card;
 }
 
@@ -691,80 +547,6 @@ function createTag(label) {
   tag.className = "tag";
   tag.textContent = label;
   return tag;
-}
-
-function renderTray() {
-  trayItems.innerHTML = "";
-
-  getAllClosetItems().forEach((item) => {
-    const piece = document.createElement("article");
-    piece.className = "tray-piece";
-    piece.dataset.itemId = item.id;
-    piece.draggable = true;
-    piece.innerHTML = `
-      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <p>${escapeHtml(item.name)}</p>
-      <span>Tap to add</span>
-    `;
-    trayItems.append(piece);
-  });
-}
-
-function addItemToCanvas(itemId, event) {
-  const rect = outfitCanvas.getBoundingClientRect();
-  const stagger = canvasPieces.length % 5;
-  canvasPieces.push({
-    canvasId: crypto.randomUUID(),
-    itemId,
-    x: event ? event.clientX - rect.left - 75 : rect.width / 2 - 75 + stagger * 12,
-    y: event ? event.clientY - rect.top - 95 : 45 + stagger * 34,
-    z: canvasPieces.length,
-  });
-  renderCanvas();
-}
-
-function moveCanvasPiece(canvasId, event) {
-  const rect = outfitCanvas.getBoundingClientRect();
-  const piece = canvasPieces.find((item) => item.canvasId === canvasId);
-
-  if (!piece) {
-    return;
-  }
-
-  piece.x = event.clientX - rect.left - 75;
-  piece.y = event.clientY - rect.top - 95;
-  renderCanvas();
-}
-
-function renderCanvas() {
-  const note = outfitCanvas.querySelector(".canvas-note");
-  outfitCanvas.querySelectorAll(".canvas-piece").forEach((piece) => piece.remove());
-  note.hidden = canvasPieces.length > 0;
-
-  canvasPieces.forEach((piece) => {
-    const item = getAllClosetItems().find((entry) => entry.id === piece.itemId);
-
-    if (!item) {
-      return;
-    }
-
-    const node = document.createElement("article");
-    node.className = "canvas-piece";
-    node.dataset.canvasId = piece.canvasId;
-    node.draggable = true;
-    node.style.left = `${piece.x}px`;
-    node.style.top = `${piece.y}px`;
-    node.style.zIndex = String(piece.z || 0);
-    node.innerHTML = `
-      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <button class="canvas-forward" data-bring-forward="${piece.canvasId}" type="button" aria-label="Bring ${escapeHtml(item.name)} forward">↑</button>
-      <button data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
-    `;
-    node.addEventListener("dragstart", () => {
-      canvasDragId = piece.canvasId;
-    });
-    outfitCanvas.append(node);
-  });
 }
 
 function renderSuggestions(prompt) {
