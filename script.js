@@ -93,6 +93,12 @@ const starterWardrobeItems = [
   createStarterItem("starter-rust-dress", "Rust shirt dress", "Dresses", "images/practice/rust-shirt-dress.png", ["rust"], ["dress", "summer"]),
   createStarterItem("starter-tan-sandals", "Tan sandals", "Shoes", "images/practice/tan-sandals.png", ["tan"], ["sandals", "casual"]),
   createStarterItem("starter-cream-heels", "Cream block heels", "Shoes", "images/practice/cream-heels.png", ["cream"], ["heels", "dressy"]),
+  createStarterItem("starter-black-crossover-leggings", "Black crossover leggings", "Bottoms", "images/practice/black-crossover-leggings.png", ["black"], ["leggings", "activewear", "casual"]),
+  createStarterItem("starter-black-flowy-shorts", "Black pleated flowy shorts", "Bottoms", "images/practice/black-flowy-shorts.png", ["black"], ["shorts", "activewear", "summer"]),
+  createStarterItem("starter-sage-satin-pants", "Sage satin wide-leg pants", "Bottoms", "images/practice/sage-satin-pants.png", ["sage", "green"], ["wide leg", "satin", "lounge"]),
+  createStarterItem("starter-black-ribbed-tank", "Black ribbed tank", "Short Sleeve Tops", "images/practice/black-ribbed-tank.png", ["black"], ["tank", "sleeveless", "casual"]),
+  createStarterItem("starter-black-slides", "Black slide sandals", "Shoes", "images/practice/black-slides.png", ["black"], ["slides", "sandals", "casual"]),
+  createStarterItem("starter-brown-black-sneakers", "Brown and black low-top sneakers", "Shoes", "images/practice/brown-black-sneakers.png", ["brown", "black", "cream"], ["sneakers", "casual", "streetwear"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
