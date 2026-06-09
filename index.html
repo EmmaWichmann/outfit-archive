@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=0.4.0" />
-    <script src="script.js?v=0.4.0" defer></script>
+    <link rel="stylesheet" href="style.css?v=0.5.0" />
+    <script src="script.js?v=0.5.0" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -117,7 +117,7 @@
             <div class="practice-window">
               <header class="practice-titlebar">
                 <span>Outfit Archive</span>
-                <strong id="practice-outfits-title">California Closet Practice</strong>
+                <strong id="practice-outfits-title">Closet Practice</strong>
               </header>
 
               <div class="outfit-mode-switch" aria-label="Choose outfit type">
@@ -211,6 +211,14 @@
               <button class="filter-button" data-category="Accessories" type="button">Accessories</button>
               <button class="filter-button" data-category="Full Outfits" type="button">Full Outfits</button>
             </div>
+          </div>
+
+          <div class="closet-actions" aria-label="Closet history and trash">
+            <button class="utility-button" id="undo-closet-action" type="button" disabled>↶ Undo</button>
+            <button class="utility-button" id="redo-closet-action" type="button" disabled>↷ Redo</button>
+            <button class="utility-button" id="open-trash" type="button">
+              Trash <span id="trash-count">0</span>
+            </button>
           </div>
 
           <div class="closet-grid" id="closet-grid"></div>
@@ -357,6 +365,28 @@
 
         <button class="primary-button full-width" type="submit"><span>Save to closet</span></button>
       </form>
+    </dialog>
+
+    <dialog class="item-dialog trash-dialog" id="trash-dialog">
+      <section class="trash-panel">
+        <header>
+          <div>
+            <p class="eyebrow">Recovery area</p>
+            <h2>Trash.</h2>
+            <p>Restore clothing you removed, or empty the trash permanently.</p>
+          </div>
+          <button class="icon-button" id="close-trash" type="button" aria-label="Close trash">×</button>
+        </header>
+
+        <div class="trash-list" id="trash-list"></div>
+        <div class="trash-empty" id="trash-empty">
+          <p>Trash is empty.</p>
+        </div>
+
+        <button class="primary-button full-width" id="empty-trash" type="button" disabled>
+          <span>Empty Trash</span>
+        </button>
+      </section>
     </dialog>
 
     <template id="item-card-template">

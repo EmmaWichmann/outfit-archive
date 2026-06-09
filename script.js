@@ -12,6 +12,7 @@
 const storageKey = "outfit-archive-items";
 const outfitsKey = "outfit-archive-saved-outfits";
 const hiddenStarterItemsKey = "outfit-archive-hidden-starter-items";
+const trashItemsKey = "outfit-archive-trash-items";
 
 const navButtons = document.querySelectorAll("[data-view-target]");
 const sections = document.querySelectorAll("[data-view]");
@@ -52,10 +53,22 @@ const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
 const topTypeButtons = document.querySelectorAll("[data-top-type]");
 const separatesLevels = document.querySelectorAll("[data-separates-level]");
 const dressLevel = document.querySelector("[data-dress-level]");
+const undoClosetButton = document.getElementById("undo-closet-action");
+const redoClosetButton = document.getElementById("redo-closet-action");
+const openTrashButton = document.getElementById("open-trash");
+const trashCount = document.getElementById("trash-count");
+const trashDialog = document.getElementById("trash-dialog");
+const closeTrashButton = document.getElementById("close-trash");
+const trashList = document.getElementById("trash-list");
+const trashEmpty = document.getElementById("trash-empty");
+const emptyTrashButton = document.getElementById("empty-trash");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
 let hiddenStarterItemIds = readStorage(hiddenStarterItemsKey);
+let trashedItems = readStorage(trashItemsKey);
+let undoClosetActions = [];
+let redoClosetActions = [];
 let activeCategory = "All";
 let searchTerm = "";
 let photoData = "";
@@ -84,6 +97,7 @@ const starterWardrobeItems = [
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
 
+migratePreviouslyRemovedStarters();
 renderApp();
 showView(getViewFromHash());
 
@@ -97,6 +111,22 @@ navButtons.forEach((button) => {
 openDialogButton.addEventListener("click", openItemDialog);
 emptyAddButton.addEventListener("click", openItemDialog);
 closeDialogButton.addEventListener("click", closeItemDialog);
+openTrashButton.addEventListener("click", () => {
+  renderTrash();
+  trashDialog.showModal();
+});
+closeTrashButton.addEventListener("click", () => trashDialog.close());
+emptyTrashButton.addEventListener("click", emptyTrash);
+undoClosetButton.addEventListener("click", undoClosetAction);
+redoClosetButton.addEventListener("click", redoClosetAction);
+
+trashList.addEventListener("click", (event) => {
+  const restoreButton = event.target.closest("[data-restore-item]");
+
+  if (restoreButton) {
+    restoreItem(restoreButton.dataset.restoreItem);
+  }
+});
 
 // This turns an uploaded photo into a private data URL stored in localStorage.
 itemPhotoInput.addEventListener("change", () => {
@@ -344,6 +374,8 @@ function renderApp() {
   renderTray();
   renderCanvas();
   renderPracticeOutfit();
+  renderTrash();
+  updateClosetActionButtons();
 }
 
 function renderStats() {
@@ -604,27 +636,139 @@ function pickBalancedPieces(scoredItems) {
 function deleteItem(id) {
   const item = getAllClosetItems().find((entry) => entry.id === id);
 
-  if (!item || !window.confirm(`Remove "${item.name}" from your closet?`)) {
+  if (!item || !window.confirm(`Move "${item.name}" to Trash?`)) {
     return;
   }
 
-  if (item.isStarter) {
-    hiddenStarterItemIds = [...new Set([...hiddenStarterItemIds, id])];
-    localStorage.setItem(hiddenStarterItemsKey, JSON.stringify(hiddenStarterItemIds));
-  } else {
-    wardrobeItems = wardrobeItems.filter((item) => item.id !== id);
+  moveItemToTrash(item, true);
+}
+
+function moveItemToTrash(item, recordAction) {
+  if (!item || trashedItems.some((entry) => entry.id === item.id)) {
+    return;
   }
 
-  canvasPieces = canvasPieces.filter((piece) => piece.itemId !== id);
-  savedOutfits = savedOutfits
-    .map((outfit) => ({
-      ...outfit,
-      pieceIds: outfit.pieceIds.filter((pieceId) => pieceId !== id),
-    }))
-    .filter((outfit) => outfit.pieceIds.length > 0);
-  saveItems();
-  localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
+  trashedItems.unshift(item);
+
+  if (item.isStarter) {
+    hiddenStarterItemIds = [...new Set([...hiddenStarterItemIds, item.id])];
+  } else {
+    wardrobeItems = wardrobeItems.filter((entry) => entry.id !== item.id);
+  }
+
+  canvasPieces = canvasPieces.filter((piece) => piece.itemId !== item.id);
+  saveClosetAndTrash();
+
+  if (recordAction) {
+    recordClosetAction("remove", item);
+  }
+
   renderApp();
+}
+
+function restoreItem(id, recordAction = true) {
+  const item = trashedItems.find((entry) => entry.id === id);
+
+  if (!item) {
+    return;
+  }
+
+  trashedItems = trashedItems.filter((entry) => entry.id !== id);
+
+  if (item.isStarter) {
+    hiddenStarterItemIds = hiddenStarterItemIds.filter((itemId) => itemId !== id);
+  } else if (!wardrobeItems.some((entry) => entry.id === id)) {
+    wardrobeItems.unshift(item);
+  }
+
+  saveClosetAndTrash();
+
+  if (recordAction) {
+    recordClosetAction("restore", item);
+  }
+
+  renderApp();
+}
+
+function emptyTrash() {
+  if (
+    trashedItems.length === 0 ||
+    !window.confirm("Permanently delete every item in Trash? This cannot be undone.")
+  ) {
+    return;
+  }
+
+  trashedItems = [];
+  undoClosetActions = [];
+  redoClosetActions = [];
+  saveClosetAndTrash();
+  renderApp();
+}
+
+function recordClosetAction(type, item) {
+  undoClosetActions.push({ type, item });
+  redoClosetActions = [];
+}
+
+function undoClosetAction() {
+  const action = undoClosetActions.pop();
+
+  if (!action) {
+    return;
+  }
+
+  if (action.type === "remove") {
+    restoreItem(action.item.id, false);
+  } else {
+    moveItemToTrash(action.item, false);
+  }
+
+  redoClosetActions.push(action);
+  updateClosetActionButtons();
+}
+
+function redoClosetAction() {
+  const action = redoClosetActions.pop();
+
+  if (!action) {
+    return;
+  }
+
+  if (action.type === "remove") {
+    moveItemToTrash(action.item, false);
+  } else {
+    restoreItem(action.item.id, false);
+  }
+
+  undoClosetActions.push(action);
+  updateClosetActionButtons();
+}
+
+function renderTrash() {
+  trashList.innerHTML = "";
+
+  trashedItems.forEach((item) => {
+    const article = document.createElement("article");
+    article.className = "trash-item";
+    article.innerHTML = `
+      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+      <div>
+        <h3>${escapeHtml(item.name)}</h3>
+        <p>${escapeHtml(item.category)}</p>
+      </div>
+      <button class="utility-button" data-restore-item="${item.id}" type="button">Restore</button>
+    `;
+    trashList.append(article);
+  });
+
+  trashCount.textContent = trashedItems.length;
+  trashEmpty.hidden = trashedItems.length > 0;
+  emptyTrashButton.disabled = trashedItems.length === 0;
+}
+
+function updateClosetActionButtons() {
+  undoClosetButton.disabled = undoClosetActions.length === 0;
+  redoClosetButton.disabled = redoClosetActions.length === 0;
 }
 
 function toggleFavorite(id) {
@@ -788,6 +932,23 @@ function getAllClosetItems() {
     (item) => !hiddenStarterItemIds.includes(item.id),
   );
   return [...wardrobeItems, ...visibleStarterItems];
+}
+
+function migratePreviouslyRemovedStarters() {
+  hiddenStarterItemIds.forEach((id) => {
+    const starterItem = starterWardrobeItems.find((item) => item.id === id);
+
+    if (starterItem && !trashedItems.some((item) => item.id === id)) {
+      trashedItems.push(starterItem);
+    }
+  });
+  localStorage.setItem(trashItemsKey, JSON.stringify(trashedItems));
+}
+
+function saveClosetAndTrash() {
+  saveItems();
+  localStorage.setItem(hiddenStarterItemsKey, JSON.stringify(hiddenStarterItemIds));
+  localStorage.setItem(trashItemsKey, JSON.stringify(trashedItems));
 }
 
 function createEmptyPracticeItem(name) {
