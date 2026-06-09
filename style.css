@@ -1233,7 +1233,6 @@ Add hover animations for outfit cards here.
 
 @media (max-width: 820px) {
   .summary-strip,
-  .builder-layout,
   .collage-layout,
   .suggestion-layout {
     grid-template-columns: 1fr;

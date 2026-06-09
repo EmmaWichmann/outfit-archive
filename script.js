@@ -647,7 +647,7 @@ function moveItemToTrash(item, recordAction) {
     wardrobeItems = wardrobeItems.filter((entry) => entry.id !== item.id);
   }
 
-  canvasPieces = canvasPieces.filter((piece) => piece.itemId !== item.id);
+  collagePieces = collagePieces.filter((piece) => piece.itemId !== item.id);
   saveClosetAndTrash();
 
   if (recordAction) {
