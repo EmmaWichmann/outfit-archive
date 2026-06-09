@@ -570,9 +570,11 @@ function createItemCard(item) {
 
   const deleteButton = card.querySelector(".delete-item");
   deleteButton.dataset.id = item.id;
+  deleteButton.classList.remove("text-button");
+  deleteButton.classList.add("delete-button");
 
   const editButton = document.createElement("button");
-  editButton.className = "text-button";
+  editButton.className = "edit-button";
   editButton.dataset.editId = item.id;
   editButton.type = "button";
   editButton.textContent = "Edit";
@@ -914,7 +916,27 @@ function openEditDialog(id) {
   editItemNameInput.value = item.name;
   editItemCategorySelect.value = item.category;
   editItemColorsInput.value = item.colors.join(", ");
-  editItemTagsInput.value = item.tags.join(", ");
+
+  const picker = document.getElementById("edit-tag-picker");
+  picker.innerHTML = "";
+  const currentTags = item.tags || [];
+  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all" && tab.filter !== "favorites");
+
+  availableVibes.forEach((tab) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.dataset.vibe = tab.filter;
+    chip.className = "tag-chip" + (currentTags.some((t) => t.toLowerCase() === tab.filter.toLowerCase()) ? " active" : "");
+    chip.textContent = "#" + tab.filter;
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("active");
+      const activeTags = [...picker.querySelectorAll(".tag-chip.active")].map((c) => c.dataset.vibe);
+      editItemTagsInput.value = activeTags.join(", ");
+    });
+    picker.appendChild(chip);
+  });
+
+  editItemTagsInput.value = currentTags.join(", ");
 
   editDialog.showModal();
 }

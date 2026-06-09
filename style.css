@@ -678,6 +678,57 @@ Add hover animations for outfit cards here.
   font-weight: 600;
 }
 
+.edit-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: rgba(255, 253, 247, 0.72);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--mauve, #816a78);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tag-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.tag-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tag-chip.active {
+  border-color: var(--mauve);
+  background: rgba(166, 120, 130, 0.15);
+  color: var(--mauve);
+}
+
+.tag-chip:hover:not(.active) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
 .empty-state {
   display: grid;
   min-height: 330px;
