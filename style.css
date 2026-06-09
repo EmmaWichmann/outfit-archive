@@ -7,7 +7,7 @@
   --sage: #7c8f7a;
   --parchment: #eee6d8;
   --mauve: #a67882;
-  --dusty-rose: #b96978;
+  --dusty-rose: #e8d0c5;
   --ivory: #fffdf7;
 }
 
@@ -361,7 +361,7 @@ h3 {
 }
 
 .outfit-mode-switch button.active {
-  background: #f3c2c8;
+  background: #e8d0c5;
 }
 
 .piece-selector {
@@ -389,7 +389,7 @@ h3 {
   margin: 0;
   border: 2px solid var(--ink);
   padding: 5px 9px;
-  background: #f3c2c8;
+  background: #e8d0c5;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -606,7 +606,7 @@ Add hover animations for outfit cards here.
   position: relative;
   overflow: hidden;
   aspect-ratio: 4 / 5;
-  background: var(--dusty-rose, #c99499);
+  background: var(--dusty-rose, #e8d0c5);
 }
 
 .card-image {
@@ -947,6 +947,13 @@ Add hover animations for outfit cards here.
   border-radius: var(--radius-md);
   padding: 10px;
   background: rgba(255, 253, 247, 0.58);
+}
+
+.trash-outfit-swatch {
+  width: 72px;
+  height: 82px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
 .trash-item img {

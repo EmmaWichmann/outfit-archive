@@ -348,8 +348,16 @@ closetGrid.addEventListener("click", (event) => {
     toggleFavorite(favoriteButton.dataset.id);
   }
 
-  if (deleteButton) {
+  if (deleteButton && deleteButton.dataset.id) {
     deleteItem(deleteButton.dataset.id);
+  }
+
+  if (deleteButton && deleteButton.dataset.deleteOutfit) {
+    deleteOutfit(deleteButton.dataset.deleteOutfit);
+  }
+
+  if (deleteButton && deleteButton.dataset.deleteCollage) {
+    deleteCollage(deleteButton.dataset.deleteCollage);
   }
 });
 
@@ -538,6 +546,11 @@ function createOutfitCard(outfit) {
     </div>
     <p class="outfit-piece-count">${pieces.length} pieces</p>
   `;
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-item text-button";
+  deleteBtn.dataset.deleteOutfit = outfit.id;
+  deleteBtn.textContent = "Remove";
+  body.append(deleteBtn);
 
   article.append(images, body);
   return article;
@@ -635,6 +648,26 @@ function deleteItem(id) {
   moveItemToTrash(item, true);
 }
 
+function deleteOutfit(id) {
+  const outfit = savedOutfits.find((o) => o.id === id);
+  if (!outfit || !window.confirm(`Move "${outfit.name}" to Trash?`)) return;
+  savedOutfits = savedOutfits.filter((o) => o.id !== id);
+  trashedItems.unshift({ ...outfit, itemType: "outfit" });
+  localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
+  saveClosetAndTrash();
+  renderApp();
+}
+
+function deleteCollage(id) {
+  const collage = savedCollages.find((c) => c.id === id);
+  if (!collage || !window.confirm(`Move "${collage.name}" to Trash?`)) return;
+  savedCollages = savedCollages.filter((c) => c.id !== id);
+  trashedItems.unshift({ ...collage, itemType: "collage" });
+  localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
+  saveClosetAndTrash();
+  renderApp();
+}
+
 function moveItemToTrash(item, recordAction) {
   if (!item || trashedItems.some((entry) => entry.id === item.id)) {
     return;
@@ -667,18 +700,24 @@ function restoreItem(id, recordAction = true) {
 
   trashedItems = trashedItems.filter((entry) => entry.id !== id);
 
-  if (item.isStarter) {
-    hiddenStarterItemIds = hiddenStarterItemIds.filter((itemId) => itemId !== id);
-  } else if (!wardrobeItems.some((entry) => entry.id === id)) {
-    wardrobeItems.unshift(item);
+  if (item.itemType === "outfit") {
+    if (!savedOutfits.some((o) => o.id === id)) savedOutfits.unshift(item);
+    localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
+  } else if (item.itemType === "collage") {
+    if (!savedCollages.some((c) => c.id === id)) savedCollages.unshift(item);
+    localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
+  } else {
+    if (item.isStarter) {
+      hiddenStarterItemIds = hiddenStarterItemIds.filter((itemId) => itemId !== id);
+    } else if (!wardrobeItems.some((entry) => entry.id === id)) {
+      wardrobeItems.unshift(item);
+    }
+    if (recordAction) {
+      recordClosetAction("restore", item);
+    }
   }
 
   saveClosetAndTrash();
-
-  if (recordAction) {
-    recordClosetAction("restore", item);
-  }
-
   renderApp();
 }
 
@@ -742,14 +781,28 @@ function renderTrash() {
   trashedItems.forEach((item) => {
     const article = document.createElement("article");
     article.className = "trash-item";
-    article.innerHTML = `
-      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <div>
-        <h3>${escapeHtml(item.name)}</h3>
-        <p>${escapeHtml(item.category)}</p>
-      </div>
-      <button class="utility-button" data-restore-item="${item.id}" type="button">Restore</button>
-    `;
+
+    if (item.itemType === "outfit" || item.itemType === "collage") {
+      const swatchColor = item.itemType === "collage" ? (item.background || "#d4c5b0") : "#d4c5b0";
+      article.innerHTML = `
+        <div class="trash-outfit-swatch" style="background:${swatchColor}"></div>
+        <div>
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${item.itemType === "collage" ? "Collage" : "Full Outfit"}</p>
+        </div>
+        <button class="utility-button" data-restore-item="${item.id}" type="button">Restore</button>
+      `;
+    } else {
+      article.innerHTML = `
+        <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+        <div>
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${escapeHtml(item.category)}</p>
+        </div>
+        <button class="utility-button" data-restore-item="${item.id}" type="button">Restore</button>
+      `;
+    }
+
     trashList.append(article);
   });
 
@@ -1085,6 +1138,11 @@ function createCollageCard(collage) {
     </div>
     <p class="outfit-piece-count">${pieces.length} pieces</p>
   `;
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-item text-button";
+  deleteBtn.dataset.deleteCollage = collage.id;
+  deleteBtn.textContent = "Remove";
+  body.append(deleteBtn);
 
   article.append(preview, body);
   return article;
