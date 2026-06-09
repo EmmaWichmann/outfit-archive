@@ -14,6 +14,7 @@ const outfitsKey = "outfit-archive-saved-outfits";
 const hiddenStarterItemsKey = "outfit-archive-hidden-starter-items";
 const trashItemsKey = "outfit-archive-trash-items";
 const collagesKey = "outfit-archive-saved-collages";
+const vibeTabsKey = "outfit-archive-vibe-tabs";
 
 const navButtons = document.querySelectorAll("[data-view-target]");
 const sections = document.querySelectorAll("[data-view]");
@@ -36,22 +37,7 @@ const suggestionResults = document.getElementById("suggestion-results");
 const itemCount = document.getElementById("item-count");
 const outfitCount = document.getElementById("outfit-count");
 const favoriteCount = document.getElementById("favorite-count");
-const practiceTopImage = document.getElementById("practice-top-image");
-const practiceTopName = document.getElementById("practice-top-name");
-const practiceSecondTopImage = document.getElementById("practice-second-top-image");
-const practiceSecondTopName = document.getElementById("practice-second-top-name");
-const practiceBottomImage = document.getElementById("practice-bottom-image");
-const practiceBottomName = document.getElementById("practice-bottom-name");
-const practiceDressImage = document.getElementById("practice-dress-image");
-const practiceDressName = document.getElementById("practice-dress-name");
-const practiceShoeImage = document.getElementById("practice-shoe-image");
-const practiceShoeName = document.getElementById("practice-shoe-name");
-const practicePieceButtons = document.querySelectorAll("[data-cycle-piece]");
-const practicePresetButtons = document.querySelectorAll("[data-practice-preset]");
 const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
-const topTypeButtons = document.querySelectorAll("[data-top-type]");
-const separatesLevels = document.querySelectorAll("[data-separates-level]");
-const dressLevel = document.querySelector("[data-dress-level]");
 const undoClosetButton = document.getElementById("undo-closet-action");
 const redoClosetButton = document.getElementById("redo-closet-action");
 const openTrashButton = document.getElementById("open-trash");
@@ -61,9 +47,6 @@ const closeTrashButton = document.getElementById("close-trash");
 const trashList = document.getElementById("trash-list");
 const trashEmpty = document.getElementById("trash-empty");
 const emptyTrashButton = document.getElementById("empty-trash");
-const secondTopLevel = document.querySelector("[data-optional-layer]");
-const toggleSecondTopButton = document.getElementById("toggle-second-top");
-const removeSecondTopButton = document.getElementById("remove-second-top");
 const collageTrayItems = document.getElementById("collage-tray-items");
 const collageCanvas = document.getElementById("collage-canvas");
 const saveCollageForm = document.getElementById("save-collage-form");
@@ -81,17 +64,24 @@ let redoClosetActions = [];
 let activeCategory = "All";
 let searchTerm = "";
 let photoData = "";
-let practiceTopIndex = 0;
-let practiceSecondTopIndex = 2;
-let practiceBottomIndex = 0;
-let practiceDressIndex = 0;
-let practiceShoeIndex = 0;
 let practiceOutfitMode = "separates";
-let activeTopType = "all";
-let showSecondTop = false;
+let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
 let collagePieces = [];
 let collageBackground = "#c9a87c";
 let collagePointerDrag = null;
+
+const defaultVibeTabs = [
+  { id: "vibe-all", label: "All", filter: "all" },
+  { id: "vibe-casual", label: "Casual", filter: "casual" },
+  { id: "vibe-professional", label: "Professional", filter: "professional" },
+  { id: "vibe-comfy", label: "Comfy", filter: "comfy" },
+  { id: "vibe-movement", label: "Movement", filter: "movement" },
+  { id: "vibe-favorites", label: "Favorites", filter: "favorites" },
+];
+
+const savedVibeTabs = readStorage(vibeTabsKey);
+let vibeTabs = savedVibeTabs.length > 0 ? savedVibeTabs : [...defaultVibeTabs];
+let activeVibe = "vibe-all";
 
 const starterWardrobeItems = [
   createStarterItem("starter-ivory-blouse", "Ivory blouse", "Short Sleeve Tops", "images/practice/ivory-blouse.png", ["ivory"], ["short sleeve", "classic"]),
@@ -138,14 +128,7 @@ navButtons.forEach((button) => {
 openDialogButton.addEventListener("click", openItemDialog);
 emptyAddButton.addEventListener("click", openItemDialog);
 closeDialogButton.addEventListener("click", closeItemDialog);
-toggleSecondTopButton.addEventListener("click", () => {
-  showSecondTop = true;
-  renderPracticeOutfit();
-});
-removeSecondTopButton.addEventListener("click", () => {
-  showSecondTop = false;
-  renderPracticeOutfit();
-});
+
 bgSwatches.forEach((swatch) => {
   swatch.addEventListener("click", () => {
     collageBackground = swatch.dataset.bgColor;
@@ -243,6 +226,7 @@ saveCollageForm.addEventListener("submit", (event) => {
   renderApp();
   showView("closet");
 });
+
 openTrashButton.addEventListener("click", () => {
   renderTrash();
   trashDialog.showModal();
@@ -374,47 +358,77 @@ suggestionForm.addEventListener("submit", (event) => {
   renderSuggestions(occasionInput.value);
 });
 
-practicePieceButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    cyclePracticePiece(button.dataset.cyclePiece, Number(button.dataset.direction));
-  });
-});
-
-practicePresetButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const preset = Number(button.dataset.practicePreset);
-
-    if (preset === 0) {
-      setPracticeMode("separates");
-      practiceTopIndex = 0;
-      practiceBottomIndex = 0;
-      practiceShoeIndex = 0;
-    } else {
-      setPracticeMode("dress");
-      practiceDressIndex = 0;
-      practiceShoeIndex = 1;
-    }
-
-    renderPracticeOutfit();
-  });
-});
-
 outfitModeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setPracticeMode(button.dataset.outfitMode);
-    renderPracticeOutfit();
   });
 });
 
-topTypeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    activeTopType = button.dataset.topType;
-    practiceTopIndex = 0;
-    topTypeButtons.forEach((item) => {
-      item.classList.toggle("active", item === button);
+document.getElementById("vibe-tabs").addEventListener("click", (event) => {
+  const tabBtn = event.target.closest("[data-vibe-id]");
+  const editBtn = event.target.closest("[data-vibe-edit]");
+  const deleteBtn = event.target.closest("[data-vibe-delete]");
+  const addBtn = event.target.closest("[data-vibe-add]");
+
+  if (tabBtn) {
+    activeVibe = tabBtn.dataset.vibeId;
+    practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
+    renderVibeTabs();
+    renderPracticeCarousels();
+  }
+
+  if (editBtn) {
+    const tab = vibeTabs.find((t) => t.id === editBtn.dataset.vibeEdit);
+    if (!tab) return;
+    const newLabel = window.prompt("Edit vibe name:", tab.label);
+    if (!newLabel || !newLabel.trim()) return;
+    tab.label = newLabel.trim();
+    tab.filter = newLabel.trim().toLowerCase();
+    localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
+    renderVibeTabs();
+    renderPracticeCarousels();
+  }
+
+  if (deleteBtn) {
+    const id = deleteBtn.dataset.vibeDelete;
+    if (!window.confirm("Remove this vibe tab?")) return;
+    vibeTabs = vibeTabs.filter((t) => t.id !== id);
+    if (activeVibe === id) activeVibe = "vibe-all";
+    localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
+    renderVibeTabs();
+    renderPracticeCarousels();
+  }
+
+  if (addBtn) {
+    const label = window.prompt("New vibe name:");
+    if (!label || !label.trim()) return;
+    vibeTabs.push({
+      id: crypto.randomUUID(),
+      label: label.trim(),
+      filter: label.trim().toLowerCase(),
     });
-    renderPracticeOutfit();
-  });
+    localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
+    renderVibeTabs();
+  }
+});
+
+document.getElementById("practice-carousels").addEventListener("click", (event) => {
+  const prevBtn = event.target.closest("[data-carousel-prev]");
+  const nextBtn = event.target.closest("[data-carousel-next]");
+
+  if (prevBtn) {
+    const type = prevBtn.dataset.carouselPrev;
+    const items = getCarouselItems(type);
+    practiceIndices[type] = wrapIndex(practiceIndices[type] - 1, items.length);
+    renderPracticeCarousels();
+  }
+
+  if (nextBtn) {
+    const type = nextBtn.dataset.carouselNext;
+    const items = getCarouselItems(type);
+    practiceIndices[type] = wrapIndex(practiceIndices[type] + 1, items.length);
+    renderPracticeCarousels();
+  }
 });
 
 function showView(viewName) {
@@ -440,7 +454,8 @@ function renderApp() {
   renderStats();
   renderCloset();
   renderCollageTray();
-  renderPracticeOutfit();
+  renderVibeTabs();
+  renderPracticeCarousels();
   renderTrash();
   updateClosetActionButtons();
 }
@@ -857,114 +872,176 @@ function getViewFromHash() {
   return window.location.hash.replace("#", "") || "closet";
 }
 
-function cyclePracticePiece(pieceType, direction) {
-  const tops = getPracticeTops();
-  const bottoms = getPracticeItems(["Bottoms"]);
-  const dresses = getPracticeItems(["Dresses"]);
-  const shoes = getPracticeItems(["Shoes"]);
-
-  if (pieceType === "top") {
-    practiceTopIndex = wrapIndex(practiceTopIndex + direction, tops.length);
-  } else if (pieceType === "second-top") {
-    practiceSecondTopIndex = wrapIndex(practiceSecondTopIndex + direction, tops.length);
-  } else if (pieceType === "bottom") {
-    practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, bottoms.length);
-  } else if (pieceType === "dress") {
-    practiceDressIndex = wrapIndex(practiceDressIndex + direction, dresses.length);
-  } else {
-    practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, shoes.length);
-  }
-
-  renderPracticeOutfit();
-}
-
-function renderPracticeOutfit() {
-  const tops = getPracticeTops();
-  const bottoms = getPracticeItems(["Bottoms"]);
-  const dresses = getPracticeItems(["Dresses"]);
-  const shoeOptions = getPracticeItems(["Shoes"]);
-
-  practiceTopIndex = wrapIndex(practiceTopIndex, tops.length);
-  practiceBottomIndex = wrapIndex(practiceBottomIndex, bottoms.length);
-  practiceDressIndex = wrapIndex(practiceDressIndex, dresses.length);
-  practiceShoeIndex = wrapIndex(practiceShoeIndex, shoeOptions.length);
-
-  const top = tops[practiceTopIndex] || createEmptyPracticeItem("Add a top");
-  const secondTop = tops[practiceSecondTopIndex] || createEmptyPracticeItem("Add a layered top");
-  const bottom = bottoms[practiceBottomIndex] || createEmptyPracticeItem("Add a bottom");
-  const dress = dresses[practiceDressIndex] || createEmptyPracticeItem("Add a dress");
-  const shoes = shoeOptions[practiceShoeIndex] || createEmptyPracticeItem("Add shoes");
-
-  practiceTopImage.src = top.photo;
-  practiceTopImage.alt = top.name;
-  practiceTopName.textContent = top.name;
-  practiceSecondTopImage.src = secondTop.photo;
-  practiceSecondTopImage.alt = secondTop.name;
-  practiceSecondTopName.textContent = secondTop.name;
-  secondTopLevel.hidden = practiceOutfitMode === "dress" || !showSecondTop;
-  toggleSecondTopButton.hidden = showSecondTop;
-  practiceBottomImage.src = bottom.photo;
-  practiceBottomImage.alt = bottom.name;
-  practiceBottomName.textContent = bottom.name;
-  practiceDressImage.src = dress.photo;
-  practiceDressImage.alt = dress.name;
-  practiceDressName.textContent = dress.name;
-  practiceShoeImage.src = shoes.photo;
-  practiceShoeImage.alt = shoes.name;
-  practiceShoeName.textContent = shoes.name;
+function setPracticeMode(mode) {
+  practiceOutfitMode = mode;
+  outfitModeButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.outfitMode === mode);
+  });
+  practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
+  renderPracticeCarousels();
 }
 
 function getPracticeItems(categories) {
   return getAllClosetItems()
     .filter((item) => categories.includes(item.category))
     .map((item) => ({
+      id: item.id,
       name: item.name,
       photo: item.photo,
+      tags: item.tags || [],
+      favorite: item.favorite || false,
     }));
 }
 
-function getPracticeTops() {
-  const allTops = getAllClosetItems()
-    .filter((item) => topCategories.includes(item.category))
-    .map((item) => ({
-      name: item.name,
-      photo: item.photo,
-      topType: getTopType(item),
-    }));
+function getVibeFilteredItems(categories) {
+  const all = getPracticeItems(categories);
+  const tab = vibeTabs.find((t) => t.id === activeVibe);
 
-  if (activeTopType === "all") {
-    return allTops;
-  }
+  if (!tab || tab.filter === "all") return all;
+  if (tab.filter === "favorites") return all.filter((item) => item.favorite);
 
-  return allTops.filter((item) => item.topType === activeTopType);
+  return all.filter((item) =>
+    item.tags.some((tag) => tag.toLowerCase().includes(tab.filter.toLowerCase()))
+  );
 }
 
-function getTopType(item) {
-  if (item.category === "Short Sleeve Tops") {
-    return "short";
-  }
-
-  if (item.category === "Long Sleeve Tops") {
-    return "long";
-  }
-
-  const itemText = [item.name, ...item.tags].join(" ").toLowerCase();
-  const longSleeveWords = ["long sleeve", "button-down", "button down", "oxford", "layering"];
-
-  return longSleeveWords.some((word) => itemText.includes(word)) ? "long" : "short";
+function getCarouselItems(type) {
+  if (type === "top") return getVibeFilteredItems(topCategories);
+  if (type === "bottom") return getVibeFilteredItems(["Bottoms"]);
+  if (type === "dress") return getVibeFilteredItems(["Dresses"]);
+  if (type === "shoe") return getVibeFilteredItems(["Shoes"]);
+  return [];
 }
 
-function setPracticeMode(mode) {
-  practiceOutfitMode = mode;
-  const showDress = practiceOutfitMode === "dress";
+function renderVibeTabs() {
+  const nav = document.getElementById("vibe-tabs");
+  nav.innerHTML = "";
 
-  separatesLevels.forEach((level) => {
-    level.hidden = showDress || (level.hasAttribute("data-optional-layer") && !showSecondTop);
+  vibeTabs.forEach((tab) => {
+    const row = document.createElement("div");
+    row.className = "vibe-tab-row" + (tab.id === activeVibe ? " active" : "");
+
+    const btn = document.createElement("button");
+    btn.className = "vibe-tab-btn";
+    btn.dataset.vibeId = tab.id;
+    btn.type = "button";
+    btn.textContent = tab.label;
+    row.append(btn);
+
+    if (tab.filter !== "all" && tab.filter !== "favorites") {
+      const editBtn = document.createElement("button");
+      editBtn.className = "vibe-tab-edit";
+      editBtn.dataset.vibeEdit = tab.id;
+      editBtn.type = "button";
+      editBtn.setAttribute("aria-label", `Edit ${tab.label}`);
+      editBtn.textContent = "✎";
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "vibe-tab-delete";
+      delBtn.dataset.vibeDelete = tab.id;
+      delBtn.type = "button";
+      delBtn.setAttribute("aria-label", `Delete ${tab.label}`);
+      delBtn.textContent = "\xd7";
+
+      row.append(editBtn, delBtn);
+    }
+
+    nav.append(row);
   });
-  dressLevel.hidden = !showDress;
-  outfitModeButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.outfitMode === practiceOutfitMode);
-  });
+
+  const addRow = document.createElement("div");
+  addRow.className = "vibe-tab-add-row";
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "vibe-tab-add";
+  addBtn.dataset.vibeAdd = "";
+  addBtn.type = "button";
+  addBtn.textContent = "+ Add vibe";
+  addRow.append(addBtn);
+
+  nav.append(addRow);
+}
+
+function buildCarousel(label, items, type, index) {
+  const section = document.createElement("div");
+  section.className = "carousel-section";
+
+  const pieceLabel = document.createElement("p");
+  pieceLabel.className = "piece-label";
+  pieceLabel.textContent = label;
+  section.append(pieceLabel);
+
+  const display = items[index] || createEmptyPracticeItem(`Add a ${label.toLowerCase()}`);
+  const isTall = type === "dress";
+
+  const img = document.createElement("img");
+  img.className = "carousel-image" + (isTall ? " tall" : "");
+  img.src = display.photo;
+  img.alt = display.name;
+  section.append(img);
+
+  if (items.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "carousel-empty";
+    empty.textContent = "No items match this vibe.";
+    section.append(empty);
+    return section;
+  }
+
+  const controls = document.createElement("div");
+  controls.className = "carousel-controls";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.dataset.carouselPrev = type;
+  prevBtn.type = "button";
+  prevBtn.setAttribute("aria-label", `Previous ${label}`);
+  prevBtn.textContent = "◄";
+
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = display.name;
+
+  const nextBtn = document.createElement("button");
+  nextBtn.dataset.carouselNext = type;
+  nextBtn.type = "button";
+  nextBtn.setAttribute("aria-label", `Next ${label}`);
+  nextBtn.textContent = "►";
+
+  controls.append(prevBtn, nameSpan, nextBtn);
+  section.append(controls);
+
+  return section;
+}
+
+function renderPracticeCarousels() {
+  const container = document.getElementById("practice-carousels");
+  container.innerHTML = "";
+
+  if (practiceOutfitMode === "separates") {
+    const tops = getCarouselItems("top");
+    const bottoms = getCarouselItems("bottom");
+    const shoes = getCarouselItems("shoe");
+
+    practiceIndices.top = wrapIndex(practiceIndices.top, tops.length);
+    practiceIndices.bottom = wrapIndex(practiceIndices.bottom, bottoms.length);
+    practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
+
+    container.append(
+      buildCarousel("Tops", tops, "top", practiceIndices.top),
+      buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom),
+      buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe)
+    );
+  } else {
+    const dresses = getCarouselItems("dress");
+    const shoes = getCarouselItems("shoe");
+
+    practiceIndices.dress = wrapIndex(practiceIndices.dress, dresses.length);
+    practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
+
+    container.append(
+      buildCarousel("Dress", dresses, "dress", practiceIndices.dress),
+      buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe)
+    );
+  }
 }
 
 function wrapIndex(index, length) {
@@ -1102,7 +1179,7 @@ function renderCollageCanvas() {
     node.style.zIndex = String(piece.z || 0);
     node.innerHTML = `
       <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <button class="collage-btn collage-remove" data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
+      <button class="collage-btn collage-remove" data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">\xd7</button>
       <button class="collage-btn collage-shrink" data-resize-piece="${piece.canvasId}" data-delta="-20" type="button" aria-label="Make smaller">−</button>
       <button class="collage-btn collage-grow" data-resize-piece="${piece.canvasId}" data-delta="20" type="button" aria-label="Make bigger">+</button>
     `;

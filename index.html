@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=0.8.1" />
-    <script src="script.js?v=0.8.1" defer></script>
+    <link rel="stylesheet" href="style.css?v=0.9.0" />
+    <script src="script.js?v=0.9.0" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -73,7 +73,7 @@
             <h1>A wardrobe, thoughtfully remembered.</h1>
           </div>
           <button class="primary-button" id="open-item-dialog" type="button">
-            <span aria-hidden="true">＋</span><span>Add a piece</span>
+            <span aria-hidden="true">&#xff0b;</span><span>Add a piece</span>
           </button>
         </header>
 
@@ -91,7 +91,7 @@
             <p>favorites</p>
           </article>
           <blockquote>
-            “Shop your own wardrobe.”
+            "Shop your own wardrobe."
           </blockquote>
         </section>
 
@@ -125,86 +125,9 @@
                 <button data-outfit-mode="dress" type="button">Dress</button>
               </div>
 
-              <div class="piece-selector" data-separates-level>
-                <p class="piece-label">Tops</p>
-                <div class="top-type-filter" aria-label="Filter tops in outfit picker">
-                  <button class="active" data-top-type="all" type="button">All</button>
-                  <button data-top-type="short" type="button">Short Sleeve</button>
-                  <button data-top-type="long" type="button">Long Sleeve</button>
-                </div>
-                <img
-                  class="selector-image"
-                  id="practice-top-image"
-                  src="images/practice/ivory-blouse.png"
-                  alt="Ivory blouse"
-                />
-                <div class="selector-controls">
-                  <button data-cycle-piece="top" data-direction="-1" type="button" aria-label="Previous top">◀</button>
-                  <span id="practice-top-name">Ivory blouse</span>
-                  <button data-cycle-piece="top" data-direction="1" type="button" aria-label="Next top">▶</button>
-                </div>
-                <button class="layer-toggle" id="toggle-second-top" type="button">+ Add second top</button>
-              </div>
-
-              <div class="piece-selector optional-layer" data-separates-level data-optional-layer hidden>
-                <p class="piece-label">Layered top</p>
-                <button class="layer-remove" id="remove-second-top" type="button">Remove layer</button>
-                <img
-                  class="selector-image"
-                  id="practice-second-top-image"
-                  src="images/practice/blue-striped-shirt.png"
-                  alt="Blue striped shirt"
-                />
-                <div class="selector-controls">
-                  <button data-cycle-piece="second-top" data-direction="-1" type="button" aria-label="Previous layered top">◀</button>
-                  <span id="practice-second-top-name">Blue striped shirt</span>
-                  <button data-cycle-piece="second-top" data-direction="1" type="button" aria-label="Next layered top">▶</button>
-                </div>
-              </div>
-
-              <div class="piece-selector" data-separates-level>
-                <p class="piece-label">Bottoms</p>
-                <img
-                  class="selector-image"
-                  id="practice-bottom-image"
-                  src="images/practice/denim-shorts.png"
-                  alt="Denim shorts"
-                />
-                <div class="selector-controls">
-                  <button data-cycle-piece="bottom" data-direction="-1" type="button" aria-label="Previous bottom">◀</button>
-                  <span id="practice-bottom-name">Denim shorts</span>
-                  <button data-cycle-piece="bottom" data-direction="1" type="button" aria-label="Next bottom">▶</button>
-                </div>
-              </div>
-
-              <div class="piece-selector dress-selector" data-dress-level hidden>
-                <p class="piece-label">Dress</p>
-                <img
-                  class="selector-image selector-image-tall"
-                  id="practice-dress-image"
-                  src="images/practice/rust-shirt-dress.png"
-                  alt="Rust shirt dress"
-                />
-                <div class="selector-controls">
-                  <button data-cycle-piece="dress" data-direction="-1" type="button" aria-label="Previous dress">◀</button>
-                  <span id="practice-dress-name">Rust shirt dress</span>
-                  <button data-cycle-piece="dress" data-direction="1" type="button" aria-label="Next dress">▶</button>
-                </div>
-              </div>
-
-              <div class="piece-selector shoe-selector">
-                <p class="piece-label">Shoes</p>
-                <img
-                  class="selector-image selector-image-shoes"
-                  id="practice-shoe-image"
-                  src="images/practice/tan-sandals.png"
-                  alt="Tan sandals"
-                />
-                <div class="selector-controls">
-                  <button data-cycle-piece="shoe" data-direction="-1" type="button" aria-label="Previous shoes">◀</button>
-                  <span id="practice-shoe-name">Tan sandals</span>
-                  <button data-cycle-piece="shoe" data-direction="1" type="button" aria-label="Next shoes">▶</button>
-                </div>
+              <div class="practice-layout">
+                <nav class="vibe-tabs" id="vibe-tabs" aria-label="Outfit vibes"></nav>
+                <div class="practice-carousels" id="practice-carousels"></div>
               </div>
 
             </div>
@@ -227,8 +150,8 @@
           </div>
 
           <div class="closet-actions" aria-label="Closet history and trash">
-            <button class="utility-button" id="undo-closet-action" type="button" disabled>↶ Undo</button>
-            <button class="utility-button" id="redo-closet-action" type="button" disabled>↷ Redo</button>
+            <button class="utility-button" id="undo-closet-action" type="button" disabled>&#x21b6; Undo</button>
+            <button class="utility-button" id="redo-closet-action" type="button" disabled>&#x21b7; Redo</button>
             <button class="utility-button" id="open-trash" type="button">
               Trash <span id="trash-count">0</span>
             </button>
@@ -344,7 +267,7 @@
             <p class="eyebrow">New archive entry</p>
             <h2>Add a piece.</h2>
           </div>
-          <button class="icon-button" id="close-item-dialog" type="button" aria-label="Close">×</button>
+          <button class="icon-button" id="close-item-dialog" type="button" aria-label="Close">&#xd7;</button>
         </header>
 
         <label class="upload-field">
@@ -352,7 +275,7 @@
           <input id="item-photo" type="file" accept="image/png,image/jpeg,image/webp" required />
           <span class="upload-prompt">
             <strong>Choose a clothing photo</strong>
-            <small>Transparent PNG recommended · 4 MB maximum</small>
+            <small>Transparent PNG recommended &middot; 4 MB maximum</small>
           </span>
           <img id="photo-preview" alt="Selected clothing preview" hidden />
         </label>
@@ -401,7 +324,7 @@
             <h2>Trash.</h2>
             <p>Restore clothing you removed, or empty the trash permanently.</p>
           </div>
-          <button class="icon-button" id="close-trash" type="button" aria-label="Close trash">×</button>
+          <button class="icon-button" id="close-trash" type="button" aria-label="Close trash">&#xd7;</button>
         </header>
 
         <div class="trash-list" id="trash-list"></div>
@@ -419,7 +342,7 @@
       <article class="outfit-card" draggable="true">
         <div class="card-image-wrap">
           <img class="card-image" alt="" />
-          <button class="favorite-button" type="button" aria-label="Favorite item">♡</button>
+          <button class="favorite-button" type="button" aria-label="Favorite item">&#x2661;</button>
         </div>
         <div class="card-body">
           <div class="card-heading">
