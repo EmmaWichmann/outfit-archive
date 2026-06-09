@@ -920,7 +920,7 @@ function openEditDialog(id) {
   const picker = document.getElementById("edit-tag-picker");
   picker.innerHTML = "";
   const currentTags = item.tags || [];
-  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all" && tab.filter !== "favorites");
+  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all");
 
   availableVibes.forEach((tab) => {
     const chip = document.createElement("button");
