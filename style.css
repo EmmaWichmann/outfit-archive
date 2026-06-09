@@ -325,7 +325,7 @@ h3 {
 
 .practice-window {
   overflow: hidden;
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 auto;
   border: 3px solid var(--ink);
   border-radius: 18px;
@@ -1201,6 +1201,160 @@ Add hover animations for outfit cards here.
   position: absolute;
   object-fit: contain;
   padding: 3px;
+}
+
+/* ===== VIBE TAB SIDEBAR + CAROUSELS ===== */
+
+.practice-layout {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  min-height: 480px;
+  border-top: 3px solid var(--ink);
+}
+
+.vibe-tabs {
+  display: flex;
+  flex-direction: column;
+  border-right: 3px solid var(--ink);
+  padding: 10px 0 0;
+  overflow-y: auto;
+  background: #f0e8da;
+}
+
+.vibe-tab-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+}
+
+.vibe-tab-row.active .vibe-tab-btn {
+  background: #e8d0c5;
+}
+
+.vibe-tab-btn {
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.vibe-tab-btn:hover {
+  background: rgba(47, 49, 44, 0.06);
+}
+
+.vibe-tab-edit,
+.vibe-tab-delete {
+  padding: 5px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.vibe-tab-row:hover .vibe-tab-edit,
+.vibe-tab-row:hover .vibe-tab-delete {
+  opacity: 1;
+}
+
+.vibe-tab-add-row {
+  margin-top: auto;
+  padding: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.vibe-tab-add {
+  width: 100%;
+  border: 1px dashed var(--muted);
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.vibe-tab-add:hover {
+  background: rgba(47, 49, 44, 0.05);
+}
+
+.practice-carousels {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.carousel-section {
+  position: relative;
+  display: grid;
+  min-height: 200px;
+  place-items: center;
+  border-bottom: 3px solid var(--ink);
+  padding: 14px 14px 54px;
+  background: #e9e0d4;
+}
+
+.carousel-section:last-child {
+  border-bottom: 0;
+}
+
+.carousel-section .piece-label {
+  top: 12px;
+  left: 12px;
+}
+
+.carousel-image {
+  width: min(200px, 68%);
+  height: 150px;
+  object-fit: contain;
+}
+
+.carousel-image.tall {
+  height: 260px;
+}
+
+.carousel-controls {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  display: grid;
+  grid-template-columns: 42px minmax(100px, 1fr) 42px;
+  align-items: center;
+  width: min(300px, calc(100% - 24px));
+  border: 2px solid var(--ink);
+  background: #fffdf7;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.carousel-controls button {
+  min-height: 38px;
+  border: 0;
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+}
+
+.carousel-controls span {
+  padding: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.carousel-empty {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 8px;
 }
 
 @media (max-width: 1080px) {

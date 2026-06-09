@@ -52,11 +52,6 @@ const outfitModeButtons = document.querySelectorAll("[data-outfit-mode]");
 const topTypeButtons = document.querySelectorAll("[data-top-type]");
 const separatesLevels = document.querySelectorAll("[data-separates-level]");
 const dressLevel = document.querySelector("[data-dress-level]");
-const pajamaLevels = document.querySelectorAll("[data-pajama-level]");
-const practicePjTopImage = document.getElementById("practice-pj-top-image");
-const practicePjTopName = document.getElementById("practice-pj-top-name");
-const practicePjBottomImage = document.getElementById("practice-pj-bottom-image");
-const practicePjBottomName = document.getElementById("practice-pj-bottom-name");
 const undoClosetButton = document.getElementById("undo-closet-action");
 const redoClosetButton = document.getElementById("redo-closet-action");
 const openTrashButton = document.getElementById("open-trash");
@@ -91,8 +86,6 @@ let practiceSecondTopIndex = 2;
 let practiceBottomIndex = 0;
 let practiceDressIndex = 0;
 let practiceShoeIndex = 0;
-let practicePjTopIndex = 0;
-let practicePjBottomIndex = 0;
 let practiceOutfitMode = "separates";
 let activeTopType = "all";
 let showSecondTop = false;
@@ -119,6 +112,14 @@ const starterWardrobeItems = [
   createStarterItem("starter-brown-black-sneakers", "Brown and black low-top sneakers", "Shoes", "images/practice/brown-black-sneakers.png", ["brown", "black", "cream"], ["sneakers", "casual", "streetwear"]),
   createStarterItem("starter-hollister-puppy-sweater", "Hollister puppy sweater", "Long Sleeve Tops", "images/practice/hollister-puppy-sweater.png", ["slate blue", "cream", "tan"], ["sweater", "long sleeve", "cozy"]),
   createStarterItem("starter-lyra-mini-dress", "Lyra mini dress", "Dresses", "images/practice/lyra-mini-dress.png", ["burgundy", "cream"], ["mini", "halter", "polka dot", "date night", "summer"]),
+  createStarterItem("starter-denim-corset-top", "Wild Fable denim corset top", "Short Sleeve Tops", "images/closet/denim-corset-top.png", ["denim", "blue"], ["strapless", "corset", "crop top"]),
+  createStarterItem("starter-charcoal-lounge-shorts", "Charcoal lounge shorts", "Bottoms", "images/closet/charcoal-lounge-shorts.png", ["charcoal", "gray"], ["shorts", "loungewear", "casual"]),
+  createStarterItem("starter-skeleton-cowboy-tee", "Skeleton cowboy graphic tee", "Short Sleeve Tops", "images/closet/skeleton-cowboy-tee.png", ["black", "tan"], ["graphic tee", "short sleeve", "halloween"]),
+  createStarterItem("starter-herringbone-wide-leg-pants", "Herringbone wide-leg pants", "Bottoms", "images/closet/charcoal-wide-leg-pants.png", ["charcoal", "gray"], ["wide leg", "drawstring", "work"]),
+  createStarterItem("starter-distressed-denim-shorts", "Distressed denim cutoff shorts", "Bottoms", "images/closet/distressed-denim-shorts.png", ["denim", "blue"], ["shorts", "distressed", "casual"]),
+  createStarterItem("starter-navy-wide-leg-sweatpants", "Navy wide-leg sweatpants", "Bottoms", "images/closet/navy-wide-leg-sweatpants.png", ["navy"], ["wide leg", "sweatpants", "loungewear"]),
+  createStarterItem("starter-cheers-crop-tee", "Cheers crop tee", "Short Sleeve Tops", "images/closet/cheers-crop-tee.png", ["black", "white"], ["crop top", "graphic tee", "short sleeve"]),
+  createStarterItem("starter-butterfly-graphic-tee", "Butterfly graphic tee", "Short Sleeve Tops", "images/closet/butterfly-graphic-tee.png", ["caramel", "pink"], ["graphic tee", "oversized", "short sleeve"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
@@ -870,10 +871,6 @@ function cyclePracticePiece(pieceType, direction) {
     practiceBottomIndex = wrapIndex(practiceBottomIndex + direction, bottoms.length);
   } else if (pieceType === "dress") {
     practiceDressIndex = wrapIndex(practiceDressIndex + direction, dresses.length);
-  } else if (pieceType === "pj-top") {
-    practicePjTopIndex = wrapIndex(practicePjTopIndex + direction, tops.length);
-  } else if (pieceType === "pj-bottom") {
-    practicePjBottomIndex = wrapIndex(practicePjBottomIndex + direction, bottoms.length);
   } else {
     practiceShoeIndex = wrapIndex(practiceShoeIndex + direction, shoes.length);
   }
@@ -959,31 +956,15 @@ function getTopType(item) {
 
 function setPracticeMode(mode) {
   practiceOutfitMode = mode;
-  const showDress = mode === "dress";
-  const showPajamas = mode === "pajamas";
-  const showSeparates = mode === "separates";
+  const showDress = practiceOutfitMode === "dress";
 
   separatesLevels.forEach((level) => {
-    level.hidden = !showSeparates || (level.hasAttribute("data-optional-layer") && !showSecondTop);
+    level.hidden = showDress || (level.hasAttribute("data-optional-layer") && !showSecondTop);
   });
   dressLevel.hidden = !showDress;
-  pajamaLevels.forEach((level) => { level.hidden = !showPajamas; });
   outfitModeButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.outfitMode === mode);
+    button.classList.toggle("active", button.dataset.outfitMode === practiceOutfitMode);
   });
-
-  if (showPajamas) {
-    const tops = getPracticeItems(["Tops", "Short Sleeve Tops", "Long Sleeve Tops"]);
-    const bottoms = getPracticeItems(["Bottoms"]);
-    const pjTop = tops[practicePjTopIndex] || createEmptyPracticeItem("Add a PJ top");
-    const pjBottom = bottoms[practicePjBottomIndex] || createEmptyPracticeItem("Add a PJ bottom");
-    practicePjTopImage.src = pjTop.photo;
-    practicePjTopImage.alt = pjTop.name;
-    practicePjTopName.textContent = pjTop.name;
-    practicePjBottomImage.src = pjBottom.photo;
-    practicePjBottomImage.alt = pjBottom.name;
-    practicePjBottomName.textContent = pjBottom.name;
-  }
 }
 
 function wrapIndex(index, length) {
