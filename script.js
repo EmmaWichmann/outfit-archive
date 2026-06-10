@@ -148,6 +148,8 @@ const starterWardrobeItems = [
   createStarterItem("starter-white-denim-shorts", "White denim cutoff shorts", "Bottoms", "images/closet/white-denim-shorts.png", ["white", "cream"], ["shorts", "denim", "casual", "summer"]),
   createStarterItem("starter-olive-midi-dress", "Olive midi sundress", "Dresses", "images/closet/olive-midi-dress.png", ["olive", "green"], ["dress", "midi", "sundress", "summer", "casual"]),
   createStarterItem("starter-dark-wash-flare-jeans", "Dark wash flare jeans", "Bottoms", "images/closet/dark-wash-flare-jeans.png", ["navy", "dark blue"], ["jeans", "flare", "denim", "casual"]),
+  createStarterItem("starter-gray-wide-leg-pants", "Gray wide-leg pants", "Bottoms", "images/closet/gray-wide-leg-pants.png", ["gray", "light gray"], ["wide leg", "drawstring", "work", "casual"]),
+  createStarterItem("starter-black-wide-leg-pants", "Black wide-leg pants", "Bottoms", "images/closet/black-wide-leg-pants.png", ["black"], ["wide leg", "drawstring", "work", "casual"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
