@@ -636,15 +636,23 @@ function createOutfitCard(outfit) {
     { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
     { left: "60%", top: "30%", width: "26%", zIndex: 2 },
   ];
+  const activeOutfitLayouts = sortedOutfitPieces.map((_, i) => outfitLayouts[i] || outfitLayouts[outfitLayouts.length - 1]);
+  const outfitXs = activeOutfitLayouts.map((p) => parseFloat(p.left));
+  const outfitYs = activeOutfitLayouts.map((p) => parseFloat(p.top));
+  const outfitWs = activeOutfitLayouts.map((p) => parseFloat(p.width));
+  const outfitDx = 50 - (Math.min(...outfitXs) + Math.max(...outfitXs.map((x, i) => x + outfitWs[i]))) / 2;
+  const outfitDy = 50 - (Math.min(...outfitYs) + Math.max(...outfitYs.map((y, i) => y + outfitWs[i]))) / 2;
+
   sortedOutfitPieces.forEach((piece, index) => {
     const pos = outfitLayouts[index] || outfitLayouts[outfitLayouts.length - 1];
+    const w = parseFloat(pos.width);
     const image = document.createElement("img");
     image.src = piece.photo;
     image.alt = piece.name;
     image.style.position = "absolute";
     image.style.objectFit = "contain";
-    image.style.left = pos.left;
-    image.style.top = pos.top;
+    image.style.left = `${clamp(parseFloat(pos.left) + outfitDx, 0, 100 - w)}%`;
+    image.style.top = `${clamp(parseFloat(pos.top) + outfitDy, 0, 100 - w)}%`;
     image.style.width = pos.width;
     image.style.zIndex = String(pos.zIndex);
     images.append(image);
@@ -1476,20 +1484,29 @@ function createCollageCard(collage) {
   const collageLayouts = [
     { left: "8%",  top: "5%",  width: "52%", zIndex: 1 },
     { left: "38%", top: "2%",  width: "44%", zIndex: 2 },
-    { left: "18%", top: "30", width: "34%", zIndex: 3 },
+    { left: "18%", top: "30%", width: "34%", zIndex: 3 },
     { left: "55%", top: "50%", width: "26%", zIndex: 4 },
     { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
     { left: "60%", top: "30%", width: "26%", zIndex: 2 },
   ];
+
+  const activeCollageLayouts = sortedCollagePieces.map((_, i) => collageLayouts[i] || collageLayouts[collageLayouts.length - 1]);
+  const collageXs = activeCollageLayouts.map((p) => parseFloat(p.left));
+  const collageYs = activeCollageLayouts.map((p) => parseFloat(p.top));
+  const collageWs = activeCollageLayouts.map((p) => parseFloat(p.width));
+  const collageDx = 50 - (Math.min(...collageXs) + Math.max(...collageXs.map((x, i) => x + collageWs[i]))) / 2;
+  const collageDy = 50 - (Math.min(...collageYs) + Math.max(...collageYs.map((y, i) => y + collageWs[i]))) / 2;
+
   sortedCollagePieces.forEach((piece, index) => {
     const pos = collageLayouts[index] || collageLayouts[collageLayouts.length - 1];
+    const w = parseFloat(pos.width);
     const img = document.createElement("img");
     img.src = piece.photo;
     img.alt = piece.name;
     img.style.position = "absolute";
     img.style.objectFit = "contain";
-    img.style.left = pos.left;
-    img.style.top = pos.top;
+    img.style.left = `${clamp(parseFloat(pos.left) + collageDx, 0, 100 - w)}%`;
+    img.style.top = `${clamp(parseFloat(pos.top) + collageDy, 0, 100 - w)}%`;
     img.style.width = pos.width;
     img.style.zIndex = String(pos.zIndex);
     preview.append(img);
