@@ -135,6 +135,7 @@ const starterWardrobeItems = [
   createStarterItem("starter-black-rose-off-shoulder", "Black rose off-shoulder top", "Short Sleeve Tops", "images/closet/black-rose-off-shoulder-top.png", ["black", "gold"], ["off shoulder", "embroidered", "short sleeve", "dressy"]),
   createStarterItem("starter-blue-cami-tank", "Blue cami tank", "Short Sleeve Tops", "images/closet/blue-cami-tank.png", ["blue", "royal blue"], ["tank", "cami", "sleeveless", "casual"]),
   createStarterItem("starter-sage-ribbed-tank", "Sage ribbed tank", "Short Sleeve Tops", "images/closet/sage-ribbed-tank.png", ["sage", "green"], ["tank", "ribbed", "sleeveless", "casual"]),
+  createStarterItem("starter-black-ribbed-tank-top", "Black ribbed tank top", "Short Sleeve Tops", "images/closet/black-ribbed-tank-top.png", ["black"], ["tank", "ribbed", "sleeveless", "basic"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
