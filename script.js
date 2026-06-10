@@ -127,6 +127,14 @@ const starterWardrobeItems = [
   createStarterItem("starter-rattan-hoop-earrings", "Rattan woven hoop earrings", "Accessories", "images/closet/rattan-hoop-earrings.png", ["tan", "natural"], ["earrings", "hoops", "casual"]),
   createStarterItem("starter-gold-crescent-earrings", "Gold crescent hoop earrings", "Accessories", "images/closet/gold-crescent-earrings.png", ["gold"], ["earrings", "hoops", "dressy"]),
   createStarterItem("starter-gold-twisted-hoops", "Gold twisted rope hoop earrings", "Accessories", "images/closet/gold-twisted-hoops.png", ["gold"], ["earrings", "hoops", "dressy"]),
+  createStarterItem("starter-california-jersey", "California Giants baseball jersey", "Short Sleeve Tops", "images/closet/california-jersey.png", ["cream", "orange", "black"], ["jersey", "graphic", "short sleeve", "casual"]),
+  createStarterItem("starter-lavender-crop-sweatshirt", "Lavender crop sweatshirt", "Long Sleeve Tops", "images/closet/lavender-crop-sweatshirt.png", ["lavender", "purple"], ["sweatshirt", "crop", "cozy", "casual"]),
+  createStarterItem("starter-light-wash-straight-jeans", "Light wash straight-leg jeans", "Bottoms", "images/closet/light-wash-straight-jeans.png", ["denim", "light blue"], ["jeans", "straight leg", "casual"]),
+  createStarterItem("starter-brown-stripe-tee", "Brown stripe fitted tee", "Short Sleeve Tops", "images/closet/brown-stripe-tee.png", ["brown", "cream", "ivory"], ["striped", "short sleeve", "fitted", "casual"]),
+  createStarterItem("starter-black-fitted-tee", "Black fitted tee", "Short Sleeve Tops", "images/closet/black-fitted-tee.png", ["black"], ["short sleeve", "fitted", "basic", "casual"]),
+  createStarterItem("starter-black-rose-off-shoulder", "Black rose off-shoulder top", "Short Sleeve Tops", "images/closet/black-rose-off-shoulder-top.png", ["black", "gold"], ["off shoulder", "embroidered", "short sleeve", "dressy"]),
+  createStarterItem("starter-blue-cami-tank", "Blue cami tank", "Short Sleeve Tops", "images/closet/blue-cami-tank.png", ["blue", "royal blue"], ["tank", "cami", "sleeveless", "casual"]),
+  createStarterItem("starter-sage-ribbed-tank", "Sage ribbed tank", "Short Sleeve Tops", "images/closet/sage-ribbed-tank.png", ["sage", "green"], ["tank", "ribbed", "sleeveless", "casual"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
