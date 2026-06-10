@@ -122,6 +122,11 @@ const starterWardrobeItems = [
   createStarterItem("starter-navy-wide-leg-sweatpants", "Navy wide-leg sweatpants", "Bottoms", "images/closet/navy-wide-leg-sweatpants.png", ["navy"], ["wide leg", "sweatpants", "loungewear"]),
   createStarterItem("starter-cheers-crop-tee", "Cheers crop tee", "Short Sleeve Tops", "images/closet/cheers-crop-tee.png", ["black", "white"], ["crop top", "graphic tee", "short sleeve"]),
   createStarterItem("starter-butterfly-graphic-tee", "Butterfly graphic tee", "Short Sleeve Tops", "images/closet/butterfly-graphic-tee.png", ["caramel", "pink"], ["graphic tee", "oversized", "short sleeve"]),
+  createStarterItem("starter-rust-tie-front-top", "Rust tie-front crop top", "Short Sleeve Tops", "images/closet/rust-tie-front-top.png", ["rust", "terracotta"], ["crop top", "tie front", "casual", "summer"]),
+  createStarterItem("starter-gold-tennis-necklace", "Gold rhinestone tennis necklace", "Accessories", "images/closet/gold-tennis-necklace.png", ["gold", "silver"], ["necklace", "jewelry", "dressy"]),
+  createStarterItem("starter-rattan-hoop-earrings", "Rattan woven hoop earrings", "Accessories", "images/closet/rattan-hoop-earrings.png", ["tan", "natural"], ["earrings", "hoops", "casual"]),
+  createStarterItem("starter-gold-crescent-earrings", "Gold crescent hoop earrings", "Accessories", "images/closet/gold-crescent-earrings.png", ["gold"], ["earrings", "hoops", "dressy"]),
+  createStarterItem("starter-gold-twisted-hoops", "Gold twisted rope hoop earrings", "Accessories", "images/closet/gold-twisted-hoops.png", ["gold"], ["earrings", "hoops", "dressy"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
