@@ -917,8 +917,7 @@ Add hover animations for outfit cards here.
   line-height: 1.6;
 }
 
-.suggestion-pieces,
-.saved-outfit-images {
+.suggestion-pieces {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
@@ -927,37 +926,15 @@ Add hover animations for outfit cards here.
 .saved-outfit-images {
   position: relative;
   display: block;
-  min-height: 360px;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: #d7b68d;
+  background: #e8d0c5;
 }
 
 .saved-outfit-images img {
   position: absolute;
-  width: 42%;
-  height: 48%;
-  padding: 5px;
   object-fit: contain;
-}
-
-.saved-outfit-images img:nth-child(1) {
-  left: 8%;
-  top: 5%;
-}
-
-.saved-outfit-images img:nth-child(2) {
-  left: 48%;
-  top: 20%;
-}
-
-.saved-outfit-images img:nth-child(3) {
-  left: 20%;
-  top: 49%;
-}
-
-.saved-outfit-images img:nth-child(4) {
-  left: 56%;
-  top: 52%;
 }
 
 .outfit-piece-count {
@@ -966,8 +943,7 @@ Add hover animations for outfit cards here.
   font-size: 0.75rem;
 }
 
-.suggestion-pieces img,
-.saved-outfit-images img {
+.suggestion-pieces img {
   width: 100%;
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-md);
@@ -1268,7 +1244,8 @@ Add hover animations for outfit cards here.
 /* Saved collage card preview */
 .collage-preview {
   position: relative;
-  aspect-ratio: 4 / 3;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
@@ -1276,7 +1253,6 @@ Add hover animations for outfit cards here.
 .collage-preview img {
   position: absolute;
   object-fit: contain;
-  padding: 3px;
 }
 
 /* ===== VIBE TAB SIDEBAR + CAROUSELS ===== */

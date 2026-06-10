@@ -622,16 +622,31 @@ function createOutfitCard(outfit) {
   const images = document.createElement("div");
   images.className = "saved-outfit-images";
 
-  pieces.forEach((piece, index) => {
+  const categoryOrder = ["Bottoms", "Tops", "Short Sleeve Tops", "Long Sleeve Tops", "Dresses", "Shoes", "Accessories"];
+  const sortedOutfitPieces = pieces.sort((a, b) => {
+    const ai = categoryOrder.findIndex((c) => a.category?.includes(c) || c === a.category);
+    const bi = categoryOrder.findIndex((c) => b.category?.includes(c) || c === b.category);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+  const outfitLayouts = [
+    { left: "8%",  top: "5%",  width: "52%", zIndex: 1 },
+    { left: "38%", top: "2%",  width: "44%", zIndex: 2 },
+    { left: "15%", top: "62%", width: "36%", zIndex: 3 },
+    { left: "55%", top: "55%", width: "28%", zIndex: 4 },
+    { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
+    { left: "60%", top: "30%", width: "26%", zIndex: 2 },
+  ];
+  sortedOutfitPieces.forEach((piece, index) => {
+    const pos = outfitLayouts[index] || outfitLayouts[outfitLayouts.length - 1];
     const image = document.createElement("img");
     image.src = piece.photo;
     image.alt = piece.name;
-    const layoutPiece = outfit.layout?.[index];
-    if (layoutPiece) {
-      image.style.left = `${clamp((layoutPiece.x / 560) * 100, 0, 72)}%`;
-      image.style.top = `${clamp((layoutPiece.y / 560) * 100, 0, 68)}%`;
-      image.style.zIndex = String(layoutPiece.z || index);
-    }
+    image.style.position = "absolute";
+    image.style.objectFit = "contain";
+    image.style.left = pos.left;
+    image.style.top = pos.top;
+    image.style.width = pos.width;
+    image.style.zIndex = String(pos.zIndex);
     images.append(image);
   });
 
@@ -1452,26 +1467,31 @@ function createCollageCard(collage) {
   preview.className = "collage-preview";
   preview.style.background = collage.background || "#c9a87c";
 
-  pieces.slice(0, 6).forEach((piece, index) => {
-    const layout = collage.layout?.[index];
+  const categoryOrder = ["Bottoms", "Tops", "Short Sleeve Tops", "Long Sleeve Tops", "Dresses", "Shoes", "Accessories"];
+  const sortedCollagePieces = pieces.slice(0, 6).sort((a, b) => {
+    const ai = categoryOrder.findIndex((c) => a.category?.includes(c) || c === a.category);
+    const bi = categoryOrder.findIndex((c) => b.category?.includes(c) || c === b.category);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+  const collageLayouts = [
+    { left: "8%",  top: "5%",  width: "52%", zIndex: 1 },
+    { left: "38%", top: "2%",  width: "44%", zIndex: 2 },
+    { left: "15%", top: "62%", width: "36%", zIndex: 3 },
+    { left: "55%", top: "55%", width: "28%", zIndex: 4 },
+    { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
+    { left: "60%", top: "30%", width: "26%", zIndex: 2 },
+  ];
+  sortedCollagePieces.forEach((piece, index) => {
+    const pos = collageLayouts[index] || collageLayouts[collageLayouts.length - 1];
     const img = document.createElement("img");
     img.src = piece.photo;
     img.alt = piece.name;
     img.style.position = "absolute";
     img.style.objectFit = "contain";
-    img.style.padding = "2px";
-    if (layout) {
-      const scaledSize = clamp((layout.size || 130) / 500 * 100, 12, 48);
-      img.style.left = `${clamp(layout.x / 500 * 100, 0, 100 - scaledSize)}%`;
-      img.style.top = `${clamp(layout.y / 500 * 100, 0, 100 - scaledSize)}%`;
-      img.style.width = `${scaledSize}%`;
-      img.style.zIndex = String(layout.z || index);
-    } else {
-      img.style.width = "35%";
-      img.style.left = `${(index % 3) * 30}%`;
-      img.style.top = `${Math.floor(index / 3) * 45}%`;
-      img.style.zIndex = String(index);
-    }
+    img.style.left = pos.left;
+    img.style.top = pos.top;
+    img.style.width = pos.width;
+    img.style.zIndex = String(pos.zIndex);
     preview.append(img);
   });
 
