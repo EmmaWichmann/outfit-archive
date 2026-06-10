@@ -1365,6 +1365,7 @@ Add hover animations for outfit cards here.
   width: min(200px, 68%);
   height: 150px;
   object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
 .carousel-image.tall {
