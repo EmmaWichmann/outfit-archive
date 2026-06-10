@@ -1476,7 +1476,7 @@ function createCollageCard(collage) {
   const collageLayouts = [
     { left: "8%",  top: "5%",  width: "52%", zIndex: 1 },
     { left: "38%", top: "2%",  width: "44%", zIndex: 2 },
-    { left: "18%", top: "48%", width: "34%", zIndex: 3 },
+    { left: "18%", top: "30", width: "34%", zIndex: 3 },
     { left: "55%", top: "50%", width: "26%", zIndex: 4 },
     { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
     { left: "60%", top: "30%", width: "26%", zIndex: 2 },
