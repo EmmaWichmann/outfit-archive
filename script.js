@@ -533,6 +533,37 @@ function renderStats() {
   favoriteCount.textContent = allItems.filter((item) => item.favorite).length;
 }
 
+function centerAllPreviews() {
+  document.querySelectorAll(".saved-outfit-images, .collage-preview").forEach((container) => {
+    const containerW = container.offsetWidth;
+    const containerH = container.offsetHeight;
+    if (!containerW || !containerH) return;
+
+    const imgs = [...container.querySelectorAll("img[data-base-left]")];
+    if (!imgs.length) return;
+
+    const positions = imgs.map((img) => {
+      const x = (parseFloat(img.dataset.baseLeft) / 100) * containerW;
+      const y = (parseFloat(img.dataset.baseTop) / 100) * containerH;
+      const w = (parseFloat(img.dataset.baseWidth) / 100) * containerW;
+      const h = img.offsetHeight || w;
+      return { img, x, y, w, h };
+    });
+
+    const minX = Math.min(...positions.map((p) => p.x));
+    const minY = Math.min(...positions.map((p) => p.y));
+    const maxX = Math.max(...positions.map((p) => p.x + p.w));
+    const maxY = Math.max(...positions.map((p) => p.y + p.h));
+    const dx = containerW / 2 - (minX + maxX) / 2;
+    const dy = containerH / 2 - (minY + maxY) / 2;
+
+    positions.forEach(({ img, x, y, w, h }) => {
+      img.style.left = `${clamp(x + dx, 0, containerW - w)}px`;
+      img.style.top = `${clamp(y + dy, 0, containerH - h)}px`;
+    });
+  });
+}
+
 function renderCloset() {
   const visibleItems = getVisibleItems();
   closetGrid.innerHTML = "";
@@ -554,6 +585,7 @@ function renderCloset() {
   });
 
   closetEmpty.hidden = closetGrid.children.length > 0;
+  requestAnimationFrame(centerAllPreviews);
 }
 
 function getVisibleItems() {
@@ -636,25 +668,21 @@ function createOutfitCard(outfit) {
     { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
     { left: "60%", top: "30%", width: "26%", zIndex: 2 },
   ];
-  const activeOutfitLayouts = sortedOutfitPieces.map((_, i) => outfitLayouts[i] || outfitLayouts[outfitLayouts.length - 1]);
-  const outfitXs = activeOutfitLayouts.map((p) => parseFloat(p.left));
-  const outfitYs = activeOutfitLayouts.map((p) => parseFloat(p.top));
-  const outfitWs = activeOutfitLayouts.map((p) => parseFloat(p.width));
-  const outfitDx = 50 - (Math.min(...outfitXs) + Math.max(...outfitXs.map((x, i) => x + outfitWs[i]))) / 2;
-  const outfitDy = 50 - (Math.min(...outfitYs) + Math.max(...outfitYs.map((y, i) => y + outfitWs[i]))) / 2;
-
   sortedOutfitPieces.forEach((piece, index) => {
     const pos = outfitLayouts[index] || outfitLayouts[outfitLayouts.length - 1];
-    const w = parseFloat(pos.width);
     const image = document.createElement("img");
     image.src = piece.photo;
     image.alt = piece.name;
     image.style.position = "absolute";
     image.style.objectFit = "contain";
-    image.style.left = `${clamp(parseFloat(pos.left) + outfitDx, 0, 100 - w)}%`;
-    image.style.top = `${clamp(parseFloat(pos.top) + outfitDy, 0, 100 - w)}%`;
     image.style.width = pos.width;
+    image.style.left = pos.left;
+    image.style.top = pos.top;
     image.style.zIndex = String(pos.zIndex);
+    image.dataset.baseLeft = String(parseFloat(pos.left));
+    image.dataset.baseTop = String(parseFloat(pos.top));
+    image.dataset.baseWidth = String(parseFloat(pos.width));
+    image.addEventListener("load", () => requestAnimationFrame(centerAllPreviews), { once: true });
     images.append(image);
   });
 
@@ -1490,25 +1518,21 @@ function createCollageCard(collage) {
     { left: "60%", top: "30%", width: "26%", zIndex: 2 },
   ];
 
-  const activeCollageLayouts = sortedCollagePieces.map((_, i) => collageLayouts[i] || collageLayouts[collageLayouts.length - 1]);
-  const collageXs = activeCollageLayouts.map((p) => parseFloat(p.left));
-  const collageYs = activeCollageLayouts.map((p) => parseFloat(p.top));
-  const collageWs = activeCollageLayouts.map((p) => parseFloat(p.width));
-  const collageDx = 50 - (Math.min(...collageXs) + Math.max(...collageXs.map((x, i) => x + collageWs[i]))) / 2;
-  const collageDy = 50 - (Math.min(...collageYs) + Math.max(...collageYs.map((y, i) => y + collageWs[i]))) / 2;
-
   sortedCollagePieces.forEach((piece, index) => {
     const pos = collageLayouts[index] || collageLayouts[collageLayouts.length - 1];
-    const w = parseFloat(pos.width);
     const img = document.createElement("img");
     img.src = piece.photo;
     img.alt = piece.name;
     img.style.position = "absolute";
     img.style.objectFit = "contain";
-    img.style.left = `${clamp(parseFloat(pos.left) + collageDx, 0, 100 - w)}%`;
-    img.style.top = `${clamp(parseFloat(pos.top) + collageDy, 0, 100 - w)}%`;
     img.style.width = pos.width;
+    img.style.left = pos.left;
+    img.style.top = pos.top;
     img.style.zIndex = String(pos.zIndex);
+    img.dataset.baseLeft = String(parseFloat(pos.left));
+    img.dataset.baseTop = String(parseFloat(pos.top));
+    img.dataset.baseWidth = String(parseFloat(pos.width));
+    img.addEventListener("load", () => requestAnimationFrame(centerAllPreviews), { once: true });
     preview.append(img);
   });
 
