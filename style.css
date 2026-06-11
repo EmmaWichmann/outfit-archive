@@ -631,7 +631,7 @@ Add hover animations for outfit cards here.
   position: relative;
   overflow: hidden;
   aspect-ratio: 4 / 5;
-  background: #fff;
+  background: #f5ede4;
 }
 
 .card-image {
@@ -639,6 +639,7 @@ Add hover animations for outfit cards here.
   height: 100%;
   padding: 14px;
   object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(80,50,30,0.14));
 }
 
 .favorite-button {
@@ -1365,7 +1366,7 @@ Add hover animations for outfit cards here.
   width: min(200px, 68%);
   height: 150px;
   object-fit: contain;
-  mix-blend-mode: multiply;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
 }
 
 .carousel-image.tall {
