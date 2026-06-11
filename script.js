@@ -150,6 +150,11 @@ const starterWardrobeItems = [
   createStarterItem("starter-dark-wash-flare-jeans", "Dark wash flare jeans", "Bottoms", "images/closet/dark-wash-flare-jeans.png", ["navy", "dark blue"], ["jeans", "flare", "denim", "casual"]),
   createStarterItem("starter-gray-wide-leg-pants", "Gray wide-leg pants", "Bottoms", "images/closet/gray-wide-leg-pants.png", ["gray", "light gray"], ["wide leg", "drawstring", "work", "casual"]),
   createStarterItem("starter-black-wide-leg-pants", "Black wide-leg pants", "Bottoms", "images/closet/black-wide-leg-pants.png", ["black"], ["wide leg", "drawstring", "work", "casual"]),
+  createStarterItem("starter-sage-linen-wide-leg-pants", "Sage linen wide-leg pants", "Bottoms", "images/closet/sage-linen-wide-leg-pants.png", ["sage", "olive", "green"], ["wide leg", "drawstring", "linen", "casual", "summer"]),
+  createStarterItem("starter-black-biker-shorts", "Black biker shorts", "Bottoms", "images/closet/black-biker-shorts.png", ["black"], ["shorts", "biker", "athletic", "casual"]),
+  createStarterItem("starter-black-face-graphic-tee", "Black face graphic tee", "Short Sleeve Tops", "images/closet/black-face-graphic-tee.png", ["black", "white"], ["graphic tee", "casual", "streetwear"]),
+  createStarterItem("starter-navy-pinstripe-flare-jeans", "Navy pinstripe flare jeans", "Bottoms", "images/closet/navy-pinstripe-flare-jeans.png", ["navy", "white"], ["jeans", "flare", "pinstripe", "denim", "casual"]),
+  createStarterItem("starter-adidas-slides", "Adidas slides", "Shoes", "images/closet/adidas-slides.png", ["black", "white"], ["slides", "casual", "athletic"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
