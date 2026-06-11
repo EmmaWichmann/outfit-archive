@@ -1311,7 +1311,7 @@ function resetPhoto(message = "") {
 }
 
 function getViewFromHash() {
-  return window.location.hash.replace("#", "") || "closet";
+  return window.location.hash.replace("#", "") || "style-me";
 }
 
 function setPracticeMode(mode) {

@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=1.0.1" />
-    <script src="script.js?v=1.0.1" defer></script>
+    <link rel="stylesheet" href="style.css?v=1.0.2" />
+    <script src="script.js?v=1.0.2" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -31,23 +31,23 @@
         <nav class="primary-nav" aria-label="App views" role="tablist">
           <button
             class="nav-button active"
-            data-view-target="closet"
-            type="button"
-            role="tab"
-            aria-controls="closet-section"
-            aria-selected="true"
-          >
-            <span>01</span><strong>Closet</strong>
-          </button>
-          <button
-            class="nav-button"
             data-view-target="style-me"
             type="button"
             role="tab"
             aria-controls="style-me-section"
+            aria-selected="true"
+          >
+            <span>01</span><strong>Style Me</strong>
+          </button>
+          <button
+            class="nav-button"
+            data-view-target="closet"
+            type="button"
+            role="tab"
+            aria-controls="closet-section"
             aria-selected="false"
           >
-            <span>02</span><strong>Style Me</strong>
+            <span>02</span><strong>Closet</strong>
           </button>
           <button
             class="nav-button"
@@ -116,6 +116,7 @@
           id="closet-section"
           data-view="closet"
           role="tabpanel"
+          hidden
         >
           <header class="section-intro">
             <p class="eyebrow">The archive</p>
