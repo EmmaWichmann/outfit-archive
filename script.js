@@ -89,10 +89,18 @@ const defaultVibeTabs = [
   { id: "vibe-comfy", label: "Comfy", filter: "comfy" },
   { id: "vibe-movement", label: "Movement", filter: "movement" },
   { id: "vibe-favorites", label: "Favorites", filter: "favorites" },
+  { id: "vibe-pjs", label: "PJs", filter: "pjs" },
+  { id: "vibe-swimsuit", label: "Swimsuit", filter: "swimwear" },
 ];
 
 const savedVibeTabs = readStorage(vibeTabsKey);
 let vibeTabs = savedVibeTabs.length > 0 ? savedVibeTabs : [...defaultVibeTabs];
+
+const newDefaultVibes = defaultVibeTabs.filter((d) => !vibeTabs.some((v) => v.id === d.id));
+if (newDefaultVibes.length > 0) {
+  vibeTabs = [...vibeTabs, ...newDefaultVibes];
+  localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
+}
 let activeVibe = "vibe-all";
 
 const starterWardrobeItems = [
@@ -138,11 +146,11 @@ const starterWardrobeItems = [
   createStarterItem("starter-black-ribbed-tank-top", "Black ribbed tank top", "Short Sleeve Tops", "images/closet/black-ribbed-tank-top.png", ["black"], ["tank", "ribbed", "sleeveless", "basic"]),
   createStarterItem("starter-black-wf-tank", "Black Wild Fable tank", "Short Sleeve Tops", "images/closet/black-wf-tank.png", ["black"], ["tank", "sleeveless", "basic", "casual"]),
   createStarterItem("starter-navy-floral-skirt", "Navy floral pleated skirt", "Bottoms", "images/closet/navy-floral-skirt.png", ["navy", "blue"], ["skirt", "floral", "pleated", "casual"]),
-  createStarterItem("starter-strawberry-bikini", "Strawberry print bikini", "Full Outfits", "images/closet/strawberry-bikini.png", ["pink", "red"], ["bikini", "swimwear", "summer", "beach"]),
-  createStarterItem("starter-snakeskin-bandeau-bikini", "Snakeskin bandeau bikini", "Full Outfits", "images/closet/snakeskin-bandeau-bikini.png", ["brown", "tan", "black"], ["bikini", "swimwear", "summer", "beach"]),
-  createStarterItem("starter-brown-bikini-set", "Brown bikini set", "Full Outfits", "images/closet/brown-bikini-set.png", ["brown", "chocolate"], ["bikini", "swimwear", "summer", "beach"]),
-  createStarterItem("starter-reptile-string-bikini", "Reptile print string bikini", "Full Outfits", "images/closet/reptile-string-bikini.png", ["orange", "green", "red"], ["bikini", "swimwear", "summer", "beach"]),
-  createStarterItem("starter-pink-floral-bandeau-bikini", "Pink floral bandeau bikini", "Full Outfits", "images/closet/pink-floral-bandeau-bikini.png", ["pink", "magenta"], ["bikini", "swimwear", "summer", "beach"]),
+  createStarterItem("starter-strawberry-bikini", "Strawberry print bikini", "Swimsuit", "images/closet/strawberry-bikini.png", ["pink", "red"], ["bikini", "swimwear", "summer", "beach"]),
+  createStarterItem("starter-snakeskin-bandeau-bikini", "Snakeskin bandeau bikini", "Swimsuit", "images/closet/snakeskin-bandeau-bikini.png", ["brown", "tan", "black"], ["bikini", "swimwear", "summer", "beach"]),
+  createStarterItem("starter-brown-bikini-set", "Brown bikini set", "Swimsuit", "images/closet/brown-bikini-set.png", ["brown", "chocolate"], ["bikini", "swimwear", "summer", "beach"]),
+  createStarterItem("starter-reptile-string-bikini", "Reptile print string bikini", "Swimsuit", "images/closet/reptile-string-bikini.png", ["orange", "green", "red"], ["bikini", "swimwear", "summer", "beach"]),
+  createStarterItem("starter-pink-floral-bandeau-bikini", "Pink floral bandeau bikini", "Swimsuit", "images/closet/pink-floral-bandeau-bikini.png", ["pink", "magenta"], ["bikini", "swimwear", "summer", "beach"]),
   createStarterItem("starter-f1-racing-jersey", "F1 racing jersey", "Long Sleeve Tops", "images/closet/f1-racing-jersey.png", ["black", "white", "red"], ["jersey", "graphic", "streetwear", "casual"]),
   createStarterItem("starter-leopard-lounge-pants", "Leopard lounge pants", "Bottoms", "images/closet/leopard-lounge-pants.png", ["brown", "tan", "black"], ["leopard", "lounge", "casual", "print"]),
   createStarterItem("starter-leopard-camp-shirt", "Leopard camp shirt", "Short Sleeve Tops", "images/closet/leopard-camp-shirt.png", ["brown", "tan", "black"], ["leopard", "camp collar", "casual", "print"]),
@@ -822,7 +830,7 @@ function scoreItem(item, words) {
 }
 
 function pickBalancedPieces(scoredItems) {
-  const categories = ["Dresses", "Tops", "Bottoms", "Shoes", "Accessories", "Full Outfits"];
+  const categories = ["Dresses", "Tops", "Bottoms", "Shoes", "Accessories", "Full Outfits", "Swimsuit", "PJs"];
   const picks = [];
 
   categories.forEach((category) => {
