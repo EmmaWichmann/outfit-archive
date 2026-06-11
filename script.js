@@ -161,7 +161,15 @@ const starterWardrobeItems = [
   createStarterItem("starter-black-biker-shorts", "Black biker shorts", "Bottoms", "images/closet/black-biker-shorts.png", ["black"], ["shorts", "biker", "athletic", "casual"]),
   createStarterItem("starter-black-face-graphic-tee", "Black face graphic tee", "Short Sleeve Tops", "images/closet/black-face-graphic-tee.png", ["black", "white"], ["graphic tee", "casual", "streetwear"]),
   createStarterItem("starter-navy-pinstripe-flare-jeans", "Navy pinstripe flare jeans", "Bottoms", "images/closet/navy-pinstripe-flare-jeans.png", ["navy", "white"], ["jeans", "flare", "pinstripe", "denim", "casual"]),
-  createStarterItem("starter-adidas-slides", "Adidas slides", "Shoes", "images/closet/adidas-slides.png", ["black", "white"], ["slides", "casual", "athletic"]),
+  createStarterItem("starter-leopard-print-shorts", "Leopard print shorts", "Bottoms", "images/closet/leopard-print-shorts.png", ["brown", "tan", "black"], ["leopard", "shorts", "casual", "print"]),
+  createStarterItem("starter-snakeskin-heeled-sandals", "Snakeskin heeled sandals", "Shoes", "images/closet/snakeskin-heeled-sandals.png", ["tan", "brown", "cream"], ["heels", "sandals", "snakeskin", "dressy"]),
+  createStarterItem("starter-knowt-graphic-tee", "Knowt graphic tee", "Short Sleeve Tops", "images/closet/knowt-graphic-tee.png", ["black", "white"], ["graphic tee", "casual", "streetwear"]),
+  createStarterItem("starter-umd-block-graphic-tee", "UMD Block graphic tee", "Short Sleeve Tops", "images/closet/umd-block-graphic-tee.png", ["navy", "multicolor"], ["graphic tee", "casual", "college"]),
+  createStarterItem("starter-sage-open-knit-sweater", "Sage open-knit sweater", "Long Sleeve Tops", "images/closet/sage-open-knit-sweater.png", ["sage", "green"], ["sweater", "knit", "crochet", "casual", "layering"]),
+  createStarterItem("starter-lime-ruffle-crop-top", "Lime ruffle crop top", "Long Sleeve Tops", "images/closet/lime-ruffle-crop-top.png", ["lime", "neon green", "yellow-green"], ["crop top", "ruffle", "tie-front", "summer", "casual"]),
+  createStarterItem("starter-green-do-your-thing-tee", "Green Do Your Thing tee", "Short Sleeve Tops", "images/closet/green-do-your-thing-tee.png", ["forest green", "white"], ["graphic tee", "casual", "streetwear"]),
+  createStarterItem("starter-retro-print-mini-skirt", "Retro print mini skirt", "Bottoms", "images/closet/retro-print-mini-skirt.png", ["orange", "green", "red", "yellow"], ["skirt", "mini", "retro", "print", "summer"]),
+  createStarterItem("starter-fish-print-pants", "Fish print pants", "Bottoms", "images/closet/fish-print-pants.png", ["black", "tan"], ["pants", "print", "casual", "streetwear"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
