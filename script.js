@@ -208,6 +208,14 @@ const starterWardrobeItems = [
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
 
+const PRESET_TAGS = [
+  { group: "Occasion", tags: ["work", "interview", "date night", "travel", "going out", "lounge"] },
+  { group: "Mood",     tags: ["effortless", "confident", "comfy", "romantic"] },
+  { group: "Season",   tags: ["summer", "winter", "layering", "hot day"] },
+  { group: "Aesthetic",tags: ["earthy", "coastal", "classic", "minimal"] },
+  { group: "Style",    tags: ["casual", "professional", "movement", "streetwear", "dressy", "boho"] },
+];
+
 migratePreviouslyRemovedStarters();
 renderApp();
 showView(getViewFromHash());
@@ -593,15 +601,7 @@ document.getElementById("vibe-tabs").addEventListener("click", (event) => {
   }
 
   if (addBtn) {
-    const label = window.prompt("New vibe name:");
-    if (!label || !label.trim()) return;
-    vibeTabs.push({
-      id: crypto.randomUUID(),
-      label: label.trim(),
-      filter: label.trim().toLowerCase(),
-    });
-    localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
-    renderVibeTabs();
+    openVibePicker();
   }
 });
 
@@ -1250,21 +1250,47 @@ function openEditDialog(id) {
   const picker = document.getElementById("edit-tag-picker");
   picker.innerHTML = "";
   const currentTags = item.tags || [];
-  const availableVibes = vibeTabs.filter((tab) => tab.filter !== "all" && tab.filter !== "favorites");
 
-  availableVibes.forEach((tab) => {
+  function syncTagInput() {
+    const activeTags = [...picker.querySelectorAll(".tag-chip.active")].map((c) => c.dataset.vibe);
+    editItemTagsInput.value = activeTags.join(", ");
+  }
+
+  function makeChip(label, value) {
     const chip = document.createElement("button");
     chip.type = "button";
-    chip.dataset.vibe = tab.filter;
-    chip.className = "tag-chip" + (currentTags.some((t) => t.toLowerCase() === tab.filter.toLowerCase()) ? " active" : "");
-    chip.textContent = "#" + tab.filter;
-    chip.addEventListener("click", () => {
-      chip.classList.toggle("active");
-      const activeTags = [...picker.querySelectorAll(".tag-chip.active")].map((c) => c.dataset.vibe);
-      editItemTagsInput.value = activeTags.join(", ");
-    });
-    picker.appendChild(chip);
+    chip.dataset.vibe = value;
+    chip.className = "tag-chip" + (currentTags.some((t) => t.toLowerCase() === value.toLowerCase()) ? " active" : "");
+    chip.textContent = label;
+    chip.addEventListener("click", () => { chip.classList.toggle("active"); syncTagInput(); });
+    return chip;
+  }
+
+  PRESET_TAGS.forEach(({ group, tags }) => {
+    const label = document.createElement("p");
+    label.className = "tag-group-label";
+    label.textContent = group;
+    picker.appendChild(label);
+    const row = document.createElement("div");
+    row.className = "tag-group-row";
+    tags.forEach((tag) => row.appendChild(makeChip(tag, tag)));
+    picker.appendChild(row);
   });
+
+  const customVibes = vibeTabs.filter(
+    (tab) => tab.filter !== "all" && tab.filter !== "favorites" &&
+    !PRESET_TAGS.flatMap((g) => g.tags).includes(tab.filter)
+  );
+  if (customVibes.length > 0) {
+    const label = document.createElement("p");
+    label.className = "tag-group-label";
+    label.textContent = "My vibes";
+    picker.appendChild(label);
+    const row = document.createElement("div");
+    row.className = "tag-group-row";
+    customVibes.forEach((tab) => row.appendChild(makeChip(tab.label, tab.filter)));
+    picker.appendChild(row);
+  }
 
   editItemTagsInput.value = currentTags.join(", ");
 
@@ -1374,6 +1400,64 @@ function getCarouselItems(type) {
   if (type === "shoe") return getVibeFilteredItems(["Shoes"]);
   return [];
 }
+
+function addVibetab(label) {
+  const filter = label.trim().toLowerCase();
+  if (!filter || vibeTabs.some((t) => t.filter === filter)) return;
+  vibeTabs.push({ id: crypto.randomUUID(), label: label.trim(), filter });
+  localStorage.setItem(vibeTabsKey, JSON.stringify(vibeTabs));
+  renderVibeTabs();
+}
+
+function openVibePicker() {
+  const dialog = document.getElementById("vibe-picker-dialog");
+  const presetsEl = document.getElementById("vibe-picker-presets");
+  presetsEl.innerHTML = "";
+
+  PRESET_TAGS.forEach(({ group, tags }) => {
+    const label = document.createElement("p");
+    label.className = "tag-group-label";
+    label.textContent = group;
+    presetsEl.appendChild(label);
+    const row = document.createElement("div");
+    row.className = "tag-group-row";
+    tags.forEach((tag) => {
+      const already = vibeTabs.some((t) => t.filter === tag);
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "tag-chip" + (already ? " active" : "");
+      chip.textContent = tag;
+      chip.disabled = already;
+      chip.addEventListener("click", () => {
+        addVibetab(tag);
+        chip.classList.add("active");
+        chip.disabled = true;
+      });
+      row.appendChild(chip);
+    });
+    presetsEl.appendChild(row);
+  });
+
+  dialog.showModal();
+}
+
+document.getElementById("close-vibe-picker").addEventListener("click", () => {
+  document.getElementById("vibe-picker-dialog").close();
+});
+
+document.getElementById("vibe-custom-add").addEventListener("click", () => {
+  const input = document.getElementById("vibe-custom-input");
+  addVibetab(input.value);
+  input.value = "";
+  document.getElementById("vibe-picker-dialog").close();
+});
+
+document.getElementById("vibe-custom-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.getElementById("vibe-custom-add").click();
+  }
+});
 
 function renderVibeTabs() {
   const nav = document.getElementById("vibe-tabs");

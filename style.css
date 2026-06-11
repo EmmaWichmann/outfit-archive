@@ -817,9 +817,81 @@ Add hover animations for outfit cards here.
 
 .tag-picker {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   margin: 8px 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.tag-group-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 8px 0 4px;
+}
+
+.tag-group-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.vibe-picker-dialog {
+  width: min(480px, 94vw);
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  padding: 0;
+  background: var(--parchment, #fffdf7);
+}
+
+.vibe-picker-dialog::backdrop {
+  background: rgba(0,0,0,0.35);
+}
+
+.vibe-picker-inner {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vibe-picker-inner header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+#vibe-picker-presets {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vibe-custom-row {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.vibe-custom-row input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  background: transparent;
+  color: var(--ink);
 }
 
 .tag-chip {
