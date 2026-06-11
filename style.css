@@ -725,6 +725,96 @@ Add hover animations for outfit cards here.
   cursor: pointer;
 }
 
+.dirty-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted, #9b8a7e);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+#laundry-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--mauve, #816a78);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0 4px;
+  margin-left: 4px;
+}
+
+.item-detail-dialog {
+  width: min(520px, 94vw);
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  padding: 0;
+  background: var(--parchment, #fffdf7);
+}
+
+.item-detail-dialog::backdrop {
+  background: rgba(0,0,0,0.35);
+}
+
+.detail-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  position: relative;
+}
+
+.detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+.detail-photo-wrap {
+  background: #f5ede4;
+  border-radius: 18px 0 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 280px;
+}
+
+.detail-photo-wrap img {
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(80,50,30,0.14));
+}
+
+.detail-info {
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-info h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
 .tag-picker {
   display: flex;
   flex-wrap: wrap;

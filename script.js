@@ -15,6 +15,7 @@ const hiddenStarterItemsKey = "outfit-archive-hidden-starter-items";
 const trashItemsKey = "outfit-archive-trash-items";
 const collagesKey = "outfit-archive-saved-collages";
 const vibeTabsKey = "outfit-archive-vibe-tabs";
+const laundryKey = "outfit-archive-laundry-items";
 
 const navButtons = document.querySelectorAll("[data-view-target]");
 const sections = document.querySelectorAll("[data-view]");
@@ -64,12 +65,19 @@ const editItemNameInput = document.getElementById("edit-item-name");
 const editItemCategorySelect = document.getElementById("edit-item-category");
 const editItemColorsInput = document.getElementById("edit-item-colors");
 const editItemTagsInput = document.getElementById("edit-item-tags");
+const laundryDialog = document.getElementById("laundry-dialog");
+const laundryList = document.getElementById("laundry-list");
+const laundryEmpty = document.getElementById("laundry-empty");
+const washAllButton = document.getElementById("wash-all");
+const laundryCountEl = document.getElementById("laundry-count");
+const itemDetailDialog = document.getElementById("item-detail-dialog");
 
 let wardrobeItems = readStorage(storageKey);
 let savedOutfits = readStorage(outfitsKey);
 let hiddenStarterItemIds = readStorage(hiddenStarterItemsKey);
 let trashedItems = readStorage(trashItemsKey);
 let savedCollages = readStorage(collagesKey);
+let laundryItems = readStorage(laundryKey);
 let undoClosetActions = [];
 let redoClosetActions = [];
 let activeCategory = "All";
@@ -368,9 +376,42 @@ redoClosetButton.addEventListener("click", redoClosetAction);
 
 trashList.addEventListener("click", (event) => {
   const restoreButton = event.target.closest("[data-restore-item]");
+  if (restoreButton) restoreItem(restoreButton.dataset.restoreItem);
+});
 
-  if (restoreButton) {
-    restoreItem(restoreButton.dataset.restoreItem);
+document.getElementById("open-laundry").addEventListener("click", () => {
+  renderLaundryDialog();
+  laundryDialog.showModal();
+});
+document.getElementById("close-laundry").addEventListener("click", () => laundryDialog.close());
+document.getElementById("wash-all").addEventListener("click", washAll);
+
+laundryList.addEventListener("click", (event) => {
+  const cleanBtn = event.target.closest("[data-clean-id]");
+  if (cleanBtn) markClean(cleanBtn.dataset.cleanId);
+});
+
+document.getElementById("close-detail-dialog").addEventListener("click", () => itemDetailDialog.close());
+
+itemDetailDialog.addEventListener("click", (event) => {
+  const editBtn = event.target.closest("#detail-edit-btn");
+  const dirtyBtn = event.target.closest("#detail-dirty-btn");
+  const deleteBtn = event.target.closest("#detail-delete-btn");
+
+  if (editBtn) {
+    itemDetailDialog.close();
+    openEditDialog(editBtn.dataset.editId);
+  } else if (dirtyBtn) {
+    const id = dirtyBtn.dataset.dirtyId;
+    if (dirtyBtn.dataset.dirtyAction === "clean") {
+      markClean(id);
+    } else {
+      markDirty(id, null);
+    }
+    itemDetailDialog.close();
+  } else if (deleteBtn) {
+    itemDetailDialog.close();
+    deleteItem(deleteBtn.dataset.id);
   }
 });
 
@@ -491,6 +532,18 @@ closetGrid.addEventListener("click", (event) => {
   if (editCollageButton) {
     loadCollageForEditing(editCollageButton.dataset.editCollage);
   }
+
+  const dirtyBtn = event.target.closest("[data-dirty-id]");
+  if (dirtyBtn) {
+    const card = dirtyBtn.closest(".outfit-card");
+    markDirty(dirtyBtn.dataset.dirtyId, card);
+  }
+
+  const cardImageWrap = event.target.closest(".card-image-wrap");
+  if (cardImageWrap && !event.target.closest("button")) {
+    const card = cardImageWrap.closest("[data-item-id]");
+    if (card) openItemDetail(card.dataset.itemId);
+  }
 });
 
 suggestionForm.addEventListener("submit", (event) => {
@@ -597,6 +650,7 @@ function renderApp() {
   renderVibeTabs();
   renderPracticeCarousels();
   updateTrashSummary();
+  updateLaundrySummary();
   updateClosetActionButtons();
 }
 
@@ -664,6 +718,7 @@ function renderCloset() {
 
 function getVisibleItems() {
   return getAllClosetItems().filter((item) => {
+    if (laundryItems.includes(item.id)) return false;
     const matchesCategory =
       activeCategory === "All" ||
       item.category === activeCategory ||
@@ -706,7 +761,14 @@ function createItemCard(item) {
   editButton.dataset.editId = item.id;
   editButton.type = "button";
   editButton.textContent = "Edit";
-  card.querySelector(".card-body").append(editButton);
+
+  const dirtyButton = document.createElement("button");
+  dirtyButton.className = "dirty-button text-button";
+  dirtyButton.dataset.dirtyId = item.id;
+  dirtyButton.type = "button";
+  dirtyButton.textContent = "Dirty";
+
+  card.querySelector(".card-body").append(editButton, dirtyButton);
 
   const tagList = card.querySelector(".tag-list");
   [...item.colors, ...item.tags].forEach((tag) => {
@@ -1049,6 +1111,112 @@ function renderTrashIfOpen() {
   }
 }
 
+function markDirty(id, cardEl) {
+  if (!laundryItems.includes(id)) {
+    laundryItems.push(id);
+    localStorage.setItem(laundryKey, JSON.stringify(laundryItems));
+  }
+  animateDirty(cardEl);
+  updateLaundrySummary();
+  renderApp();
+}
+
+function markClean(id) {
+  laundryItems = laundryItems.filter((i) => i !== id);
+  localStorage.setItem(laundryKey, JSON.stringify(laundryItems));
+  updateLaundrySummary();
+  renderLaundryDialog();
+  renderApp();
+}
+
+function washAll() {
+  laundryItems = [];
+  localStorage.setItem(laundryKey, JSON.stringify(laundryItems));
+  updateLaundrySummary();
+  renderLaundryDialog();
+  renderApp();
+}
+
+function updateLaundrySummary() {
+  laundryCountEl.textContent = laundryItems.length;
+}
+
+function renderLaundryDialog() {
+  laundryList.innerHTML = "";
+  const allItems = getAllClosetItems();
+  const dirtyItems = laundryItems
+    .map((id) => allItems.find((item) => item.id === id))
+    .filter(Boolean);
+
+  laundryEmpty.hidden = dirtyItems.length > 0;
+  washAllButton.disabled = dirtyItems.length === 0;
+
+  dirtyItems.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "trash-item";
+    row.innerHTML = `
+      <img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:6px;background:#f5ede4;" />
+      <span>${escapeHtml(item.name)}</span>
+      <button class="utility-button" data-clean-id="${escapeHtml(item.id)}" type="button">Clean</button>
+    `;
+    laundryList.append(row);
+  });
+}
+
+function animateDirty(cardEl) {
+  if (!cardEl) return;
+  const cardRect = cardEl.getBoundingClientRect();
+  const basketBtn = document.getElementById("open-laundry");
+  if (!basketBtn) return;
+  const basketRect = basketBtn.getBoundingClientRect();
+
+  const ghost = document.createElement("div");
+  ghost.style.cssText = `
+    position:fixed;left:${cardRect.left}px;top:${cardRect.top}px;
+    width:${cardRect.width}px;height:${Math.round(cardRect.height * 0.4)}px;
+    background:var(--dusty-rose,#e8d0c5);border-radius:10px;
+    pointer-events:none;z-index:9999;
+    transition:all 0.45s cubic-bezier(0.4,0,0.2,1);opacity:0.9;
+  `;
+  document.body.appendChild(ghost);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ghost.style.left = `${basketRect.left + basketRect.width / 2 - 20}px`;
+    ghost.style.top = `${basketRect.top}px`;
+    ghost.style.width = "40px";
+    ghost.style.height = "40px";
+    ghost.style.borderRadius = "50%";
+    ghost.style.opacity = "0";
+    ghost.style.transform = "scale(0.2)";
+  }));
+  setTimeout(() => ghost.remove(), 500);
+}
+
+function openItemDetail(id) {
+  const allItems = getAllClosetItems();
+  const item = allItems.find((i) => i.id === id);
+  if (!item) return;
+
+  document.getElementById("detail-photo").src = item.photo;
+  document.getElementById("detail-photo").alt = item.name;
+  document.getElementById("detail-name").textContent = item.name;
+  document.getElementById("detail-category").textContent = item.category;
+
+  const tagList = document.getElementById("detail-tags");
+  tagList.innerHTML = "";
+  [...item.colors, ...item.tags].forEach((tag) => tagList.append(createTag(tag)));
+
+  document.getElementById("detail-edit-btn").dataset.editId = id;
+  document.getElementById("detail-dirty-btn").dataset.dirtyId = id;
+  document.getElementById("detail-delete-btn").dataset.id = id;
+
+  const dirtyBtn = document.getElementById("detail-dirty-btn");
+  const isInLaundry = laundryItems.includes(id);
+  dirtyBtn.textContent = isInLaundry ? "Mark clean" : "Mark dirty";
+  dirtyBtn.dataset.dirtyAction = isInLaundry ? "clean" : "dirty";
+
+  itemDetailDialog.showModal();
+}
+
 function updateClosetActionButtons() {
   undoClosetButton.disabled = undoClosetActions.length === 0;
   redoClosetButton.disabled = redoClosetActions.length === 0;
@@ -1177,7 +1345,7 @@ function savePracticeOutfit(event) {
 
 function getPracticeItems(categories) {
   return getAllClosetItems()
-    .filter((item) => categories.includes(item.category))
+    .filter((item) => categories.includes(item.category) && !laundryItems.includes(item.id))
     .map((item) => ({
       id: item.id,
       name: item.name,
