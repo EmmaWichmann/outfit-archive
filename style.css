@@ -631,7 +631,7 @@ Add hover animations for outfit cards here.
   position: relative;
   overflow: hidden;
   aspect-ratio: 4 / 5;
-  background: var(--dusty-rose, #e8d0c5);
+  background: #fff;
 }
 
 .card-image {
