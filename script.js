@@ -52,8 +52,7 @@ const collageTrayItems = document.getElementById("collage-tray-items");
 const collageCanvas = document.getElementById("collage-canvas");
 const saveCollageForm = document.getElementById("save-collage-form");
 const collageNameInput = document.getElementById("collage-name");
-const clearCollageButton = document.getElementById("clear-collage-canvas");
-const bgSwatches = document.querySelectorAll("[data-bg-color]");
+const trayFilterBar = document.getElementById("tray-filter-bar");
 const savePracticeOutfitForm = document.getElementById("save-practice-outfit-form");
 const practiceOutfitNameInput = document.getElementById("practice-outfit-name");
 const exportWardrobeButton = document.getElementById("export-wardrobe");
@@ -86,8 +85,11 @@ let photoData = "";
 let practiceOutfitMode = "separates";
 let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
 let collagePieces = [];
-let collageBackground = "#c9a87c";
+const collageBackground = "#EDD6D1";
 let collagePointerDrag = null;
+let collageDragMoved = false;
+let collageSelectedId = null;
+let collageTrayFilter = "All";
 let editingCollageId = null;
 
 const defaultVibeTabs = [
@@ -286,17 +288,11 @@ editForm.addEventListener("submit", (event) => {
   editDialog.close();
 });
 
-bgSwatches.forEach((swatch) => {
-  swatch.addEventListener("click", () => {
-    collageBackground = swatch.dataset.bgColor;
-    collageCanvas.style.background = collageBackground;
-    bgSwatches.forEach((s) => s.classList.toggle("active", s === swatch));
-  });
-});
-
-clearCollageButton.addEventListener("click", () => {
-  collagePieces = [];
-  renderCollageCanvas();
+trayFilterBar.addEventListener("click", (event) => {
+  const btn = event.target.closest("[data-tray-filter]");
+  if (!btn) return;
+  collageTrayFilter = btn.dataset.trayFilter;
+  renderCollageTray();
 });
 
 collageTrayItems.addEventListener("click", (event) => {
@@ -308,10 +304,13 @@ collageTrayItems.addEventListener("click", (event) => {
 collageCanvas.addEventListener("click", (event) => {
   const removeButton = event.target.closest("[data-remove-piece]");
   const resizeButton = event.target.closest("[data-resize-piece]");
+  const layerButton = event.target.closest("[data-layer-piece]");
 
   if (removeButton) {
     collagePieces = collagePieces.filter((piece) => piece.canvasId !== removeButton.dataset.removePiece);
+    if (collageSelectedId === removeButton.dataset.removePiece) collageSelectedId = null;
     renderCollageCanvas();
+    return;
   }
 
   if (resizeButton) {
@@ -320,6 +319,21 @@ collageCanvas.addEventListener("click", (event) => {
       piece.size = clamp((piece.size || 130) + Number(resizeButton.dataset.delta), 60, 280);
       renderCollageCanvas();
     }
+    return;
+  }
+
+  if (layerButton) {
+    const piece = collagePieces.find((p) => p.canvasId === layerButton.dataset.layerPiece);
+    if (piece) {
+      piece.z = (piece.z || 0) + Number(layerButton.dataset.layerDir);
+      renderCollageCanvas();
+    }
+    return;
+  }
+
+  if (!event.target.closest(".collage-piece")) {
+    collageSelectedId = null;
+    renderCollageCanvas();
   }
 });
 
@@ -330,9 +344,12 @@ collageCanvas.addEventListener("pointerdown", (event) => {
   const piece = collagePieces.find((item) => item.canvasId === pieceNode.dataset.canvasId);
   if (!piece) return;
 
+  collageDragMoved = false;
   const rect = collageCanvas.getBoundingClientRect();
   collagePointerDrag = {
     piece,
+    startX: event.clientX,
+    startY: event.clientY,
     offsetX: event.clientX - rect.left - piece.x,
     offsetY: event.clientY - rect.top - piece.y,
   };
@@ -341,6 +358,10 @@ collageCanvas.addEventListener("pointerdown", (event) => {
 
 collageCanvas.addEventListener("pointermove", (event) => {
   if (!collagePointerDrag) return;
+
+  const dx = event.clientX - collagePointerDrag.startX;
+  const dy = event.clientY - collagePointerDrag.startY;
+  if (Math.abs(dx) > 4 || Math.abs(dy) > 4) collageDragMoved = true;
 
   const rect = collageCanvas.getBoundingClientRect();
   collagePointerDrag.piece.x = clamp(event.clientX - rect.left - collagePointerDrag.offsetX, 0, rect.width - 60);
@@ -354,7 +375,11 @@ collageCanvas.addEventListener("pointermove", (event) => {
 
 collageCanvas.addEventListener("pointerup", () => {
   if (collagePointerDrag) {
-    collagePointerDrag.piece.z = Math.max(0, ...collagePieces.map((p) => p.z || 0)) + 1;
+    if (!collageDragMoved) {
+      collageSelectedId = collagePointerDrag.piece.canvasId;
+    } else {
+      collagePointerDrag.piece.z = Math.max(0, ...collagePieces.map((p) => p.z || 0)) + 1;
+    }
     collagePointerDrag = null;
     renderCollageCanvas();
   }
@@ -392,6 +417,7 @@ saveCollageForm.addEventListener("submit", (event) => {
   localStorage.setItem(collagesKey, JSON.stringify(savedCollages));
   collageNameInput.value = "";
   collagePieces = [];
+  collageSelectedId = null;
   renderApp();
   showView("closet");
 });
@@ -1804,19 +1830,56 @@ function escapeHtml(value) {
 }
 
 function renderCollageTray() {
+  const items = getAllClosetItems();
+  const allCategories = [...new Set(items.map((i) => i.category || "Uncategorized"))];
+  const filterOptions = ["All", ...allCategories];
+
+  trayFilterBar.innerHTML = "";
+  filterOptions.forEach((cat) => {
+    const btn = document.createElement("button");
+    btn.className = "tray-filter-btn" + (cat === collageTrayFilter ? " active" : "");
+    btn.textContent = cat;
+    btn.dataset.trayFilter = cat;
+    btn.type = "button";
+    trayFilterBar.append(btn);
+  });
+
   collageTrayItems.innerHTML = "";
 
-  getAllClosetItems().forEach((item) => {
-    const piece = document.createElement("article");
-    piece.className = "tray-piece";
-    piece.dataset.itemId = item.id;
-    piece.innerHTML = `
-      <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <p>${escapeHtml(item.name)}</p>
-      <span>Tap to add</span>
-    `;
-    collageTrayItems.append(piece);
-  });
+  const filtered =
+    collageTrayFilter === "All"
+      ? items
+      : items.filter((i) => (i.category || "Uncategorized") === collageTrayFilter);
+
+  if (collageTrayFilter === "All") {
+    const groups = {};
+    filtered.forEach((item) => {
+      const cat = item.category || "Uncategorized";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(item);
+    });
+    Object.entries(groups).forEach(([cat, catItems]) => {
+      const header = document.createElement("p");
+      header.className = "tray-category-header";
+      header.textContent = cat;
+      collageTrayItems.append(header);
+      catItems.forEach((item) => collageTrayItems.append(makeTrayPiece(item)));
+    });
+  } else {
+    filtered.forEach((item) => collageTrayItems.append(makeTrayPiece(item)));
+  }
+}
+
+function makeTrayPiece(item) {
+  const piece = document.createElement("article");
+  piece.className = "tray-piece";
+  piece.dataset.itemId = item.id;
+  piece.innerHTML = `
+    <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
+    <p>${escapeHtml(item.name)}</p>
+    <span>Tap to add</span>
+  `;
+  return piece;
 }
 
 function addItemToCollage(itemId) {
@@ -1844,8 +1907,9 @@ function renderCollageCanvas() {
     if (!item) return;
 
     const size = piece.size || 130;
+    const isSelected = piece.canvasId === collageSelectedId;
     const node = document.createElement("article");
-    node.className = "collage-piece";
+    node.className = "collage-piece" + (isSelected ? " is-selected" : "");
     node.dataset.canvasId = piece.canvasId;
     node.style.left = `${piece.x}px`;
     node.style.top = `${piece.y}px`;
@@ -1853,7 +1917,9 @@ function renderCollageCanvas() {
     node.style.zIndex = String(piece.z || 0);
     node.innerHTML = `
       <img src="${item.photo}" alt="${escapeHtml(item.name)}" />
-      <button class="collage-btn collage-remove" data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove ${escapeHtml(item.name)}">\xd7</button>
+      <button class="collage-btn collage-remove" data-remove-piece="${piece.canvasId}" type="button" aria-label="Remove">\xd7</button>
+      <button class="collage-btn collage-layer collage-above" data-layer-piece="${piece.canvasId}" data-layer-dir="1" type="button" aria-label="Bring above">↑</button>
+      <button class="collage-btn collage-layer collage-below" data-layer-piece="${piece.canvasId}" data-layer-dir="-1" type="button" aria-label="Send below">↓</button>
       <button class="collage-btn collage-shrink" data-resize-piece="${piece.canvasId}" data-delta="-20" type="button" aria-label="Make smaller">−</button>
       <button class="collage-btn collage-grow" data-resize-piece="${piece.canvasId}" data-delta="20" type="button" aria-label="Make bigger">+</button>
     `;
@@ -1938,9 +2004,8 @@ function loadCollageForEditing(id) {
   if (!collage) return;
 
   editingCollageId = id;
-  collageBackground = collage.background || "#c9a87c";
+  collageSelectedId = null;
   collageCanvas.style.background = collageBackground;
-  bgSwatches.forEach((s) => s.classList.toggle("active", s.dataset.bgColor === collageBackground));
 
   const allItems = getAllClosetItems();
   collagePieces = (collage.layout || []).map((entry) => ({

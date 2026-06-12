@@ -1302,52 +1302,12 @@ Add hover animations for outfit cards here.
   background: rgba(255, 253, 247, 0.5);
 }
 
-.collage-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.bg-palette {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.bg-swatch {
-  width: 32px;
-  height: 32px;
-  border: 2.5px solid transparent;
-  border-radius: 50%;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-.bg-swatch.active {
-  border-color: var(--ink);
-  transform: scale(1.18);
-}
-
-.bg-swatch:hover:not(.active) {
-  transform: scale(1.1);
-  border-color: rgba(47, 49, 44, 0.3);
-}
-
-.bg-swatch-light:not(.active) {
-  border-color: var(--line);
-}
-
 .collage-canvas {
   position: relative;
-  min-height: 560px;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: calc(var(--radius-lg) - 6px);
-  background: #c9a87c;
-  transition: background 0.3s ease;
+  background: #EDD6D1;
 }
 
 .collage-piece {
@@ -1402,6 +1362,70 @@ Add hover animations for outfit cards here.
 .collage-grow {
   bottom: 6px;
   right: 6px;
+}
+
+.collage-layer {
+  display: none;
+  font-size: 0.7rem;
+  width: 22px;
+  height: 22px;
+}
+
+.collage-above {
+  top: 6px;
+  left: 6px;
+}
+
+.collage-below {
+  top: 32px;
+  left: 6px;
+}
+
+.collage-piece.is-selected {
+  outline: 2px solid var(--mauve);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.collage-piece.is-selected .collage-layer {
+  display: grid;
+}
+
+/* Tray category filter */
+.tray-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0 0 10px;
+}
+
+.tray-filter-btn {
+  padding: 3px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tray-filter-btn.active {
+  background: var(--mauve);
+  border-color: var(--mauve);
+  color: #fff;
+}
+
+.tray-category-header {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.45;
+  margin: 12px 0 4px;
+  padding: 0 2px;
 }
 
 /* Saved collage card preview */
