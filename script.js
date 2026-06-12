@@ -421,6 +421,7 @@ saveCollageForm.addEventListener("submit", (event) => {
   collageNameInput.value = "";
   collagePieces = [];
   collageSelectedId = null;
+  renderCollageCanvas();
   renderApp();
   showView("closet");
 });
