@@ -112,16 +112,10 @@ if (newDefaultVibes.length > 0) {
 let activeVibe = "vibe-all";
 
 const starterWardrobeItems = [
-  createStarterItem("starter-ivory-blouse", "Ivory blouse", "Short Sleeve Tops", "images/practice/ivory-blouse.png", ["ivory"], ["short sleeve", "classic"]),
-  createStarterItem("starter-rust-top", "Rust knit top", "Short Sleeve Tops", "images/practice/rust-top.png", ["rust"], ["short sleeve", "casual"]),
   createStarterItem("starter-blue-shirt", "Blue striped shirt", "Long Sleeve Tops", "images/closet/blue-striped-shirt.png", ["blue", "white"], ["long sleeve", "layering"]),
-  createStarterItem("starter-denim-shorts", "Denim shorts", "Bottoms", "images/practice/denim-shorts.png", ["denim", "blue"], ["shorts", "casual"]),
-  createStarterItem("starter-plaid-skirt", "Cream plaid skirt", "Bottoms", "images/practice/plaid-skirt.png", ["cream"], ["skirt", "plaid"]),
   createStarterItem("starter-striped-shorts", "Striped sailor shorts", "Bottoms", "images/closet/striped-sailor-shorts.png", ["ivory", "blue"], ["shorts", "striped"]),
   createStarterItem("starter-floral-shorts", "Floral sailor shorts", "Bottoms", "images/closet/floral-sailor-shorts.png", ["cream", "floral"], ["shorts", "casual"]),
   createStarterItem("starter-rust-dress", "Rust shirt dress", "Dresses", "images/closet/rust-shirt-dress.png", ["rust"], ["dress", "summer"]),
-  createStarterItem("starter-tan-sandals", "Tan sandals", "Shoes", "images/practice/tan-sandals.png", ["tan"], ["sandals", "casual"]),
-  createStarterItem("starter-cream-heels", "Cream block heels", "Shoes", "images/practice/cream-heels.png", ["cream"], ["heels", "dressy"]),
   createStarterItem("starter-black-crossover-leggings", "Black crossover leggings", "Bottoms", "images/closet/black-crossover-leggings.png", ["black"], ["leggings", "activewear", "casual"]),
   createStarterItem("starter-black-flowy-shorts", "Black pleated flowy shorts", "Bottoms", "images/closet/black-flowy-shorts.png", ["black"], ["shorts", "activewear", "summer"]),
   createStarterItem("starter-sage-satin-pants", "Sage satin wide-leg pants", "Bottoms", "images/closet/sage-satin-pants.png", ["sage", "green"], ["wide leg", "satin", "lounge"]),
