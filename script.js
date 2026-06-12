@@ -762,8 +762,10 @@ function createItemCard(item) {
   const card = itemTemplate.content.firstElementChild.cloneNode(true);
   card.dataset.itemId = item.id;
 
-  card.querySelector(".card-image").src = item.photo;
-  card.querySelector(".card-image").alt = item.name;
+  const cardImg = card.querySelector(".card-image");
+  cardImg.src = item.photo;
+  cardImg.alt = item.name;
+  cardImg.onerror = () => card.remove();
   card.querySelector(".card-name").textContent = item.name;
   card.querySelector(".card-category").textContent = item.category;
 
