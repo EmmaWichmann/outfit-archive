@@ -241,6 +241,7 @@ const PRESET_TAGS = [
 migratePreviouslyRemovedStarters();
 renderApp();
 showView(getViewFromHash());
+cleanBrokenWardrobe();
 
 // View navigation: shows one main feature at a time.
 navButtons.forEach((button) => {
@@ -663,6 +664,26 @@ function showView(viewName) {
 
   history.replaceState(null, "", `#${validView}`);
   document.getElementById("top").scrollIntoView({ behavior: "smooth" });
+}
+
+async function cleanBrokenWardrobe() {
+  const results = await Promise.all(
+    wardrobeItems.map(
+      (item) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(null);
+          img.onerror = () => resolve(item.id);
+          img.src = item.photo;
+        })
+    )
+  );
+  const brokenIds = results.filter(Boolean);
+  if (brokenIds.length > 0) {
+    wardrobeItems = wardrobeItems.filter((i) => !brokenIds.includes(i.id));
+    localStorage.setItem(storageKey, JSON.stringify(wardrobeItems));
+    renderApp();
+  }
 }
 
 function renderApp() {
