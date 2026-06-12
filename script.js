@@ -404,10 +404,13 @@ saveCollageForm.addEventListener("submit", (event) => {
     return;
   }
 
+  const canvasRect = collageCanvas.getBoundingClientRect();
   const collage = {
     id: crypto.randomUUID(),
     name: collageNameInput.value.trim(),
     background: collageBackground,
+    canvasWidth: canvasRect.width,
+    canvasHeight: canvasRect.height,
     pieceIds: collagePieces.map((p) => p.itemId),
     layout: collagePieces.map(({ itemId, x, y, z, size }) => ({ itemId, x, y, z: z || 0, size: size || 130 })),
     createdAt: new Date().toISOString(),
@@ -1932,44 +1935,27 @@ function createCollageCard(collage) {
   article.className = "outfit-card";
   const allItems = getAllClosetItems();
 
-  const pieces = collage.pieceIds
-    .map((id) => allItems.find((item) => item.id === id))
-    .filter(Boolean);
-
   const preview = document.createElement("div");
   preview.className = "collage-preview";
-  preview.style.background = collage.background || "#c9a87c";
+  preview.style.background = collage.background || "#EDD6D1";
 
-  const categoryOrder = ["Bottoms", "Tops", "Short Sleeve Tops", "Long Sleeve Tops", "Dresses", "Shoes", "Accessories"];
-  const sortedCollagePieces = pieces.slice(0, 6).sort((a, b) => {
-    const ai = categoryOrder.findIndex((c) => a.category?.includes(c) || c === a.category);
-    const bi = categoryOrder.findIndex((c) => b.category?.includes(c) || c === b.category);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
-  const collageLayouts = [
-    { left: "8%",  top: "5%",  width: "52%", zIndex: 1 },
-    { left: "38%", top: "2%",  width: "44%", zIndex: 2 },
-    { left: "18%", top: "30%", width: "34%", zIndex: 3 },
-    { left: "55%", top: "50%", width: "26%", zIndex: 4 },
-    { left: "5%",  top: "30%", width: "30%", zIndex: 2 },
-    { left: "60%", top: "30%", width: "26%", zIndex: 2 },
-  ];
+  const canvasW = collage.canvasWidth || 400;
+  const canvasH = collage.canvasHeight || Math.round(canvasW * 4 / 3);
+  const layout = collage.layout || [];
+  const pieceCount = layout.length;
 
-  sortedCollagePieces.forEach((piece, index) => {
-    const pos = collageLayouts[index] || collageLayouts[collageLayouts.length - 1];
+  [...layout].sort((a, b) => (a.z || 0) - (b.z || 0)).forEach((entry) => {
+    const item = allItems.find((i) => i.id === entry.itemId);
+    if (!item) return;
     const img = document.createElement("img");
-    img.src = piece.photo;
-    img.alt = piece.name;
+    img.src = item.photo;
+    img.alt = item.name;
     img.style.position = "absolute";
     img.style.objectFit = "contain";
-    img.style.width = pos.width;
-    img.style.left = pos.left;
-    img.style.top = pos.top;
-    img.style.zIndex = String(pos.zIndex);
-    img.dataset.baseLeft = String(parseFloat(pos.left));
-    img.dataset.baseTop = String(parseFloat(pos.top));
-    img.dataset.baseWidth = String(parseFloat(pos.width));
-    img.addEventListener("load", () => requestAnimationFrame(centerAllPreviews), { once: true });
+    img.style.left = `${(entry.x / canvasW) * 100}%`;
+    img.style.top = `${(entry.y / canvasH) * 100}%`;
+    img.style.width = `${((entry.size || 130) / canvasW) * 100}%`;
+    img.style.zIndex = String(entry.z || 0);
     preview.append(img);
   });
 
@@ -1980,7 +1966,7 @@ function createCollageCard(collage) {
       <h3 class="card-name">${escapeHtml(collage.name)}</h3>
       <span class="card-category">Collage</span>
     </div>
-    <p class="outfit-piece-count">${pieces.length} pieces</p>
+    <p class="outfit-piece-count">${pieceCount} pieces</p>
   `;
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "delete-item delete-button";
