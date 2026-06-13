@@ -83,7 +83,10 @@ let activeCategory = "All";
 let searchTerm = "";
 let photoData = "";
 let practiceOutfitMode = "separates";
-let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
+let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+let styleShowShoes = true;
+let styleShowLayerTop = false;
+let pickedAccessoryIds = [];
 let collagePieces = [];
 const collageBackground = "#EDD6D1";
 let collagePointerDrag = null;
@@ -652,7 +655,8 @@ document.getElementById("vibe-tabs").addEventListener("click", (event) => {
 
   if (tabBtn) {
     activeVibe = tabBtn.dataset.vibeId;
-    practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
+    practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+    pickedAccessoryIds = [];
     renderVibeTabs();
     renderPracticeCarousels();
   }
@@ -687,6 +691,10 @@ document.getElementById("vibe-tabs").addEventListener("click", (event) => {
 document.getElementById("practice-carousels").addEventListener("click", (event) => {
   const prevBtn = event.target.closest("[data-carousel-prev]");
   const nextBtn = event.target.closest("[data-carousel-next]");
+  const toggleLayer = event.target.closest("[data-toggle-layer]");
+  const toggleShoes = event.target.closest("[data-toggle-shoes]");
+  const addAcc = event.target.closest("[data-add-accessory]");
+  const removeAcc = event.target.closest("[data-remove-accessory]");
 
   if (prevBtn) {
     const type = prevBtn.dataset.carouselPrev;
@@ -699,6 +707,30 @@ document.getElementById("practice-carousels").addEventListener("click", (event) 
     const type = nextBtn.dataset.carouselNext;
     const items = getCarouselItems(type);
     practiceIndices[type] = wrapIndex(practiceIndices[type] + 1, items.length);
+    renderPracticeCarousels();
+  }
+
+  if (toggleLayer) {
+    styleShowLayerTop = !styleShowLayerTop;
+    renderPracticeCarousels();
+  }
+
+  if (toggleShoes) {
+    styleShowShoes = !styleShowShoes;
+    renderPracticeCarousels();
+  }
+
+  if (addAcc) {
+    const id = addAcc.dataset.addAccessory;
+    if (!pickedAccessoryIds.includes(id)) {
+      pickedAccessoryIds.push(id);
+    }
+    renderPracticeCarousels();
+  }
+
+  if (removeAcc) {
+    const id = removeAcc.dataset.removeAccessory;
+    pickedAccessoryIds = pickedAccessoryIds.filter((a) => a !== id);
     renderPracticeCarousels();
   }
 });
@@ -1420,27 +1452,37 @@ function setPracticeMode(mode) {
   outfitModeButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.outfitMode === mode);
   });
-  practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0 };
+  practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+  pickedAccessoryIds = [];
   renderPracticeCarousels();
 }
 
 function getCurrentPracticePieces() {
+  const allItems = getAllClosetItems();
+  const accessories = pickedAccessoryIds
+    .map((id) => allItems.find((i) => i.id === id))
+    .filter(Boolean);
+
   if (practiceOutfitMode === "dress") {
     const dresses = getCarouselItems("dress");
     const shoes = getCarouselItems("shoe");
     return [
       dresses[wrapIndex(practiceIndices.dress, dresses.length)],
-      shoes[wrapIndex(practiceIndices.shoe, shoes.length)],
+      styleShowShoes ? shoes[wrapIndex(practiceIndices.shoe, shoes.length)] : null,
+      ...accessories,
     ].filter((item) => item?.id);
   }
 
   const tops = getCarouselItems("top");
   const bottoms = getCarouselItems("bottom");
+  const layers = getCarouselItems("layer");
   const shoes = getCarouselItems("shoe");
   return [
     tops[wrapIndex(practiceIndices.top, tops.length)],
     bottoms[wrapIndex(practiceIndices.bottom, bottoms.length)],
-    shoes[wrapIndex(practiceIndices.shoe, shoes.length)],
+    styleShowLayerTop ? layers[wrapIndex(practiceIndices.layer, layers.length)] : null,
+    styleShowShoes ? shoes[wrapIndex(practiceIndices.shoe, shoes.length)] : null,
+    ...accessories,
   ].filter((item) => item?.id);
 }
 
@@ -1495,10 +1537,11 @@ function getVibeFilteredItems(categories) {
 }
 
 function getCarouselItems(type) {
-  if (type === "top") return getVibeFilteredItems(topCategories);
+  if (type === "top" || type === "layer") return getVibeFilteredItems(topCategories);
   if (type === "bottom") return getVibeFilteredItems(["Bottoms"]);
   if (type === "dress") return getVibeFilteredItems(["Dresses"]);
   if (type === "shoe") return getVibeFilteredItems(["Shoes"]);
+  if (type === "accessory") return getVibeFilteredItems(["Accessories"]);
   return [];
 }
 
@@ -1659,24 +1702,131 @@ function buildCarousel(label, items, type, index) {
   return section;
 }
 
+function buildAccessoriesSection() {
+  const allItems = getAllClosetItems();
+  const accItems = getCarouselItems("accessory");
+  practiceIndices.accessory = wrapIndex(practiceIndices.accessory, accItems.length);
+
+  const section = document.createElement("div");
+  section.className = "carousel-section accessories-section";
+
+  const label = document.createElement("p");
+  label.className = "piece-label";
+  label.textContent = "Accessories";
+  section.append(label);
+
+  // Picked accessories thumbnails
+  if (pickedAccessoryIds.length > 0) {
+    const picks = document.createElement("div");
+    picks.className = "accessory-picks";
+    pickedAccessoryIds.forEach((id) => {
+      const item = allItems.find((i) => i.id === id);
+      if (!item) return;
+      const thumb = document.createElement("div");
+      thumb.className = "accessory-pick-thumb";
+      const img = document.createElement("img");
+      img.src = item.photo;
+      img.alt = item.name;
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "accessory-remove-btn";
+      removeBtn.type = "button";
+      removeBtn.dataset.removeAccessory = id;
+      removeBtn.setAttribute("aria-label", `Remove ${item.name}`);
+      removeBtn.textContent = "×";
+      thumb.append(img, removeBtn);
+      picks.append(thumb);
+    });
+    section.append(picks);
+  }
+
+  if (accItems.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "carousel-empty";
+    empty.textContent = "No accessories found.";
+    section.append(empty);
+    return section;
+  }
+
+  // Browse carousel
+  const display = accItems[practiceIndices.accessory];
+  const browseWrap = document.createElement("div");
+  browseWrap.className = "accessory-browse";
+
+  const img = document.createElement("img");
+  img.className = "carousel-image";
+  img.src = display.photo;
+  img.alt = display.name;
+  browseWrap.append(img);
+
+  const controls = document.createElement("div");
+  controls.className = "carousel-controls";
+  const prevBtn = document.createElement("button");
+  prevBtn.dataset.carouselPrev = "accessory";
+  prevBtn.type = "button";
+  prevBtn.setAttribute("aria-label", "Previous accessory");
+  prevBtn.textContent = "◄";
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = display.name;
+  const nextBtn = document.createElement("button");
+  nextBtn.dataset.carouselNext = "accessory";
+  nextBtn.type = "button";
+  nextBtn.setAttribute("aria-label", "Next accessory");
+  nextBtn.textContent = "►";
+  controls.append(prevBtn, nameSpan, nextBtn);
+  browseWrap.append(controls);
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "accessory-add-btn";
+  addBtn.type = "button";
+  addBtn.dataset.addAccessory = display.id;
+  addBtn.textContent = "+ Add to look";
+  browseWrap.append(addBtn);
+
+  section.append(browseWrap);
+  return section;
+}
+
 function renderPracticeCarousels() {
   const container = document.getElementById("practice-carousels");
   container.innerHTML = "";
 
+  // Toggle row
+  const toggleRow = document.createElement("div");
+  toggleRow.className = "style-toggle-row";
+  const layerBtn = document.createElement("button");
+  layerBtn.type = "button";
+  layerBtn.dataset.toggleLayer = "1";
+  layerBtn.className = "style-toggle-btn" + (styleShowLayerTop ? " active" : "");
+  layerBtn.textContent = styleShowLayerTop ? "− Layer top" : "+ Layer top";
+  const shoeBtn = document.createElement("button");
+  shoeBtn.type = "button";
+  shoeBtn.dataset.toggleShoes = "1";
+  shoeBtn.className = "style-toggle-btn" + (styleShowShoes ? " active" : "");
+  shoeBtn.textContent = styleShowShoes ? "− Shoes" : "+ Shoes";
+  toggleRow.append(layerBtn, shoeBtn);
+  container.append(toggleRow);
+
   if (practiceOutfitMode === "separates") {
     const tops = getCarouselItems("top");
     const bottoms = getCarouselItems("bottom");
+    const layers = getCarouselItems("layer");
     const shoes = getCarouselItems("shoe");
 
     practiceIndices.top = wrapIndex(practiceIndices.top, tops.length);
     practiceIndices.bottom = wrapIndex(practiceIndices.bottom, bottoms.length);
+    practiceIndices.layer = wrapIndex(practiceIndices.layer, layers.length);
     practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
 
     container.append(
       buildCarousel("Tops", tops, "top", practiceIndices.top),
-      buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom),
-      buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe)
+      buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom)
     );
+    if (styleShowLayerTop) {
+      container.append(buildCarousel("Layer top", layers, "layer", practiceIndices.layer));
+    }
+    if (styleShowShoes) {
+      container.append(buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe));
+    }
   } else {
     const dresses = getCarouselItems("dress");
     const shoes = getCarouselItems("shoe");
@@ -1684,11 +1834,13 @@ function renderPracticeCarousels() {
     practiceIndices.dress = wrapIndex(practiceIndices.dress, dresses.length);
     practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
 
-    container.append(
-      buildCarousel("Dress", dresses, "dress", practiceIndices.dress),
-      buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe)
-    );
+    container.append(buildCarousel("Dress", dresses, "dress", practiceIndices.dress));
+    if (styleShowShoes) {
+      container.append(buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe));
+    }
   }
+
+  container.append(buildAccessoriesSection());
 }
 
 function wrapIndex(index, length) {
