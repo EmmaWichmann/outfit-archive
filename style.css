@@ -1597,21 +1597,21 @@ Add hover animations for outfit cards here.
   padding: 8px;
 }
 
-/* Style Me — tops + layer top side by side */
-.carousel-top-row {
+/* Style Me — side-by-side carousel pairs */
+.carousel-pair-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
-.carousel-top-row .carousel-section {
+.carousel-pair-row .carousel-section {
   border-bottom: 3px solid var(--ink);
 }
 
-.carousel-top-row .carousel-section:first-child {
+.carousel-pair-row .carousel-section:first-child {
   border-right: 1.5px solid var(--ink);
 }
 
-.carousel-top-row .carousel-section:last-child {
+.carousel-pair-row .carousel-section:last-child {
   border-left: 1.5px solid var(--ink);
   border-bottom: 3px solid var(--ink);
 }
@@ -1642,9 +1642,7 @@ Add hover animations for outfit cards here.
 
 /* Style Me — accessories section */
 .accessories-section {
-  border-top: 1px solid var(--line);
-  padding-top: 10px;
-  margin-top: 4px;
+  padding-top: 6px;
 }
 
 .accessory-picks {

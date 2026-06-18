@@ -1826,7 +1826,7 @@ function renderPracticeCarousels() {
 
     if (styleShowLayerTop) {
       const topRow = document.createElement("div");
-      topRow.className = "carousel-top-row";
+      topRow.className = "carousel-pair-row";
       topRow.append(
         buildCarousel("Tops", tops, "top", practiceIndices.top),
         buildCarousel("Layer top", layers, "layer", practiceIndices.layer)
@@ -1835,7 +1835,15 @@ function renderPracticeCarousels() {
     } else {
       container.append(buildCarousel("Tops", tops, "top", practiceIndices.top));
     }
-    container.append(buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom));
+
+    const bottomRow = document.createElement("div");
+    bottomRow.className = "carousel-pair-row";
+    bottomRow.append(
+      buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom),
+      buildAccessoriesSection()
+    );
+    container.append(bottomRow);
+
     if (styleShowShoes) {
       container.append(buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe));
     }
@@ -1846,13 +1854,18 @@ function renderPracticeCarousels() {
     practiceIndices.dress = wrapIndex(practiceIndices.dress, dresses.length);
     practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
 
-    container.append(buildCarousel("Dress", dresses, "dress", practiceIndices.dress));
+    const dressRow = document.createElement("div");
+    dressRow.className = "carousel-pair-row";
+    dressRow.append(
+      buildCarousel("Dress", dresses, "dress", practiceIndices.dress),
+      buildAccessoriesSection()
+    );
+    container.append(dressRow);
+
     if (styleShowShoes) {
       container.append(buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe));
     }
   }
-
-  container.append(buildAccessoriesSection());
 }
 
 function wrapIndex(index, length) {
