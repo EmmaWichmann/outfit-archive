@@ -1817,13 +1817,18 @@ function renderPracticeCarousels() {
     practiceIndices.layer = wrapIndex(practiceIndices.layer, layers.length);
     practiceIndices.shoe = wrapIndex(practiceIndices.shoe, shoes.length);
 
-    container.append(
-      buildCarousel("Tops", tops, "top", practiceIndices.top),
-      buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom)
-    );
     if (styleShowLayerTop) {
-      container.append(buildCarousel("Layer top", layers, "layer", practiceIndices.layer));
+      const topRow = document.createElement("div");
+      topRow.className = "carousel-top-row";
+      topRow.append(
+        buildCarousel("Tops", tops, "top", practiceIndices.top),
+        buildCarousel("Layer top", layers, "layer", practiceIndices.layer)
+      );
+      container.append(topRow);
+    } else {
+      container.append(buildCarousel("Tops", tops, "top", practiceIndices.top));
     }
+    container.append(buildCarousel("Bottoms", bottoms, "bottom", practiceIndices.bottom));
     if (styleShowShoes) {
       container.append(buildCarousel("Shoes", shoes, "shoe", practiceIndices.shoe));
     }

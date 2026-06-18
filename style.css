@@ -1597,6 +1597,25 @@ Add hover animations for outfit cards here.
   padding: 8px;
 }
 
+/* Style Me — tops + layer top side by side */
+.carousel-top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.carousel-top-row .carousel-section {
+  border-bottom: 3px solid var(--ink);
+}
+
+.carousel-top-row .carousel-section:first-child {
+  border-right: 1.5px solid var(--ink);
+}
+
+.carousel-top-row .carousel-section:last-child {
+  border-left: 1.5px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+}
+
 /* Style Me — toggle row */
 .style-toggle-row {
   display: flex;
