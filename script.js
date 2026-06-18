@@ -257,6 +257,13 @@ const starterWardrobeItems = [
   createStarterItem("starter-gold-flat-hoop-earrings", "Gold flat hoop earrings", "Accessories", "images/closet/gold-flat-hoop-earrings.png", ["gold"], ["earrings", "hoops", "jewelry", "dressy", "casual"]),
   createStarterItem("starter-black-mini-skirt", "Black mini skirt", "Bottoms", "images/closet/black-mini-skirt.png", ["black"], ["skirt", "mini", "casual", "going out"]),
   createStarterItem("starter-black-floral-velvet-top", "Black floral velvet bell-sleeve top", "Long Sleeve Tops", "images/closet/black-floral-velvet-top.png", ["black"], ["velvet", "floral", "bell sleeve", "going out", "dressy"]),
+  createStarterItem("starter-orange-carnelian-beaded-bracelet", "Orange carnelian beaded bracelet", "Accessories", "images/closet/orange-carnelian-beaded-bracelet.png", ["orange", "red", "amber"], ["bracelet", "beaded", "jewelry", "casual", "boho"]),
+  createStarterItem("starter-tiger-eye-beaded-bracelet", "Tiger eye beaded bracelet", "Accessories", "images/closet/tiger-eye-beaded-bracelet.png", ["brown", "gold"], ["bracelet", "beaded", "jewelry", "casual", "boho"]),
+  createStarterItem("starter-white-gold-beaded-bracelet", "White & gold beaded bracelet", "Accessories", "images/closet/white-gold-beaded-bracelet.png", ["white", "gold", "cream"], ["bracelet", "beaded", "jewelry", "casual", "dressy"]),
+  createStarterItem("starter-gold-textured-hoops", "Gold textured hoop earrings", "Accessories", "images/closet/gold-textured-hoops.png", ["gold"], ["earrings", "hoops", "jewelry", "casual", "dressy"]),
+  createStarterItem("starter-ivory-resin-hoop-earrings", "Ivory resin hoop earrings", "Accessories", "images/closet/ivory-resin-hoop-earrings.png", ["ivory", "cream", "gold"], ["earrings", "hoops", "jewelry", "casual", "boho"]),
+  createStarterItem("starter-brown-resin-hoop-earrings", "Brown resin hoop earrings", "Accessories", "images/closet/brown-resin-hoop-earrings.png", ["brown", "tortoise"], ["earrings", "hoops", "jewelry", "casual"]),
+  createStarterItem("starter-black-patent-slingback-heels", "Black patent slingback heels", "Shoes", "images/closet/black-patent-slingback-heels.png", ["black"], ["heels", "slingback", "kitten heel", "dressy", "going out"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
