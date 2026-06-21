@@ -1597,6 +1597,71 @@ Add hover animations for outfit cards here.
   padding: 8px;
 }
 
+/* Style Me — weather tip */
+.weather-tip {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  min-height: 1.2em;
+}
+
+/* Style Me — placeholder SVG images */
+.placeholder-img {
+  opacity: 0.55;
+}
+
+/* Style Me — action buttons bar */
+.style-me-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f9f5ed;
+  border-top: 3px solid var(--ink);
+  flex-wrap: wrap;
+}
+
+.style-action-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  background: transparent;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.style-action-btn.surprise-btn {
+  background: var(--mauve);
+  border-color: var(--mauve);
+  color: #fff;
+}
+
+.style-action-btn.surprise-btn:hover {
+  background: #9b7d8a;
+  border-color: #9b7d8a;
+}
+
+.style-action-btn.save-btn:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+.style-action-btn.clear-btn {
+  border-color: var(--muted);
+  color: var(--muted);
+}
+
+.style-action-btn.clear-btn:hover {
+  background: var(--muted);
+  color: #fff;
+}
+
 /* Style Me — side-by-side carousel pairs */
 .carousel-pair-row {
   display: grid;

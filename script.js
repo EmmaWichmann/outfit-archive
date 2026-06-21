@@ -84,9 +84,19 @@ let searchTerm = "";
 let photoData = "";
 let practiceOutfitMode = "separates";
 let practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+let practiceActivated = { top: false, bottom: false, dress: false, shoe: false, layer: false, accessory: false };
 let styleShowShoes = true;
 let styleShowLayerTop = false;
 let pickedAccessoryIds = [];
+
+const STYLE_PLACEHOLDERS = {
+  top: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M35 22 Q50 32 65 22 L88 38 L76 48 L70 42 L70 80 L30 80 L30 42 L24 48 L12 38 Z" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>')}`,
+  layer: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30 18 L18 30 L10 56 L22 60 L22 82 L50 82 L50 18" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M70 18 L82 30 L90 56 L78 60 L78 82 L50 82" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>')}`,
+  bottom: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M14 28 L86 28 L80 72 L56 72 L50 52 L44 72 L20 72 Z" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>')}`,
+  dress: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M40 15 Q50 22 60 15 L72 30 L62 38 L68 82 L32 82 L38 38 L28 30 Z" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>')}`,
+  accessory: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M22 30 Q22 70 50 70 Q78 70 78 30" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linecap="round"/><circle cx="50" cy="77" r="7" fill="none" stroke="#9e8c7a" stroke-width="2.5"/></svg>')}`,
+  shoe: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M8 64 Q8 48 24 46 L50 42 L72 36 L84 46 L84 58 L8 64 Z" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M8 64 L84 64 L84 72 Q60 76 8 72 Z" fill="none" stroke="#9e8c7a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>')}`,
+};
 let collagePieces = [];
 const collageBackground = "#EDD6D1";
 let collagePointerDrag = null;
@@ -280,6 +290,7 @@ migratePreviouslyRemovedStarters();
 renderApp();
 showView(getViewFromHash());
 cleanBrokenWardrobe();
+fetchWeatherTip();
 
 // View navigation: shows one main feature at a time.
 navButtons.forEach((button) => {
@@ -663,6 +674,7 @@ document.getElementById("vibe-tabs").addEventListener("click", (event) => {
   if (tabBtn) {
     activeVibe = tabBtn.dataset.vibeId;
     practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+    practiceActivated = { top: false, bottom: false, dress: false, shoe: false, layer: false, accessory: false };
     pickedAccessoryIds = [];
     renderVibeTabs();
     renderPracticeCarousels();
@@ -705,6 +717,7 @@ document.getElementById("practice-carousels").addEventListener("click", (event) 
 
   if (prevBtn) {
     const type = prevBtn.dataset.carouselPrev;
+    practiceActivated[type] = true;
     const items = getCarouselItems(type);
     practiceIndices[type] = wrapIndex(practiceIndices[type] - 1, items.length);
     renderPracticeCarousels();
@@ -712,6 +725,7 @@ document.getElementById("practice-carousels").addEventListener("click", (event) 
 
   if (nextBtn) {
     const type = nextBtn.dataset.carouselNext;
+    practiceActivated[type] = true;
     const items = getCarouselItems(type);
     practiceIndices[type] = wrapIndex(practiceIndices[type] + 1, items.length);
     renderPracticeCarousels();
@@ -741,6 +755,98 @@ document.getElementById("practice-carousels").addEventListener("click", (event) 
     renderPracticeCarousels();
   }
 });
+
+document.getElementById("style-me-actions").addEventListener("click", (event) => {
+  if (event.target.closest("[data-action='surprise']")) surpriseMe();
+  if (event.target.closest("[data-action='save-look']")) quickSaveLook();
+  if (event.target.closest("[data-action='clear-look']")) clearLook();
+});
+
+function surpriseMe() {
+  const rand = (arr) => Math.floor(Math.random() * arr.length);
+  if (practiceOutfitMode === "separates") {
+    const tops = getCarouselItems("top");
+    const bottoms = getCarouselItems("bottom");
+    const layers = getCarouselItems("layer");
+    const shoes = getCarouselItems("shoe");
+    const accessories = getCarouselItems("accessory");
+    if (tops.length) { practiceIndices.top = rand(tops); practiceActivated.top = true; }
+    if (bottoms.length) { practiceIndices.bottom = rand(bottoms); practiceActivated.bottom = true; }
+    if (styleShowLayerTop && layers.length) { practiceIndices.layer = rand(layers); practiceActivated.layer = true; }
+    if (styleShowShoes && shoes.length) { practiceIndices.shoe = rand(shoes); practiceActivated.shoe = true; }
+    if (accessories.length) {
+      const shuffled = [...accessories].sort(() => Math.random() - 0.5);
+      pickedAccessoryIds = shuffled.slice(0, Math.min(2, shuffled.length)).map((i) => i.id);
+    }
+  } else {
+    const dresses = getCarouselItems("dress");
+    const shoes = getCarouselItems("shoe");
+    const accessories = getCarouselItems("accessory");
+    if (dresses.length) { practiceIndices.dress = rand(dresses); practiceActivated.dress = true; }
+    if (styleShowShoes && shoes.length) { practiceIndices.shoe = rand(shoes); practiceActivated.shoe = true; }
+    if (accessories.length) {
+      const shuffled = [...accessories].sort(() => Math.random() - 0.5);
+      pickedAccessoryIds = shuffled.slice(0, Math.min(2, shuffled.length)).map((i) => i.id);
+    }
+  }
+  renderPracticeCarousels();
+}
+
+function clearLook() {
+  practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+  practiceActivated = { top: false, bottom: false, dress: false, shoe: false, layer: false, accessory: false };
+  pickedAccessoryIds = [];
+  renderPracticeCarousels();
+}
+
+function quickSaveLook() {
+  const pieces = getCurrentPracticePieces();
+  if (pieces.length === 0) return;
+  const inputName = document.getElementById("practice-outfit-name").value.trim();
+  const name = inputName || `Look — ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  savedOutfits.unshift({
+    id: crypto.randomUUID(),
+    name,
+    pieceIds: pieces.map((item) => item.id),
+    createdAt: new Date().toISOString(),
+  });
+  localStorage.setItem(outfitsKey, JSON.stringify(savedOutfits));
+  document.getElementById("practice-outfit-name").value = "";
+  activeCategory = "Full Outfits";
+  categoryFilters.querySelectorAll(".filter-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.category === activeCategory);
+  });
+  renderApp();
+}
+
+async function fetchWeatherTip() {
+  const el = document.getElementById("weather-tip");
+  if (!el) return;
+  try {
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=32.7157&longitude=-117.1611&current=temperature_2m,weathercode&temperature_unit=fahrenheit");
+    const data = await res.json();
+    const temp = Math.round(data.current.temperature_2m);
+    const code = data.current.weathercode;
+    el.textContent = getWeatherTip(temp, code);
+  } catch {
+    el.textContent = "";
+  }
+}
+
+function getWeatherTip(temp, code) {
+  const rainy = [51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code);
+  const stormy = [95, 96, 99].includes(code);
+  const foggy = [45, 48].includes(code);
+  if (stormy) return "Thunderstorms today ⛈ — stay cozy indoors.";
+  if (rainy && temp < 60) return "Rainy and chilly 🌧 — a layer is a must.";
+  if (rainy) return "Rainy today ☂️ — maybe a cute rain-proof layer.";
+  if (foggy) return "Foggy morning 🌫 — layers are your friend.";
+  if (temp >= 85) return `Hot out there today (${temp}°F) ☀️ — keep it light!`;
+  if (temp >= 75) return `Warm and sunny (${temp}°F) ☀️ — skip the cardigan!`;
+  if (temp >= 65) return `Nice day in San Diego (${temp}°F) 🌤 — perfect outfit weather.`;
+  if (temp >= 55) return `A little cool today (${temp}°F) 🌥 — a light layer wouldn't hurt.`;
+  return `Chilly for SD today (${temp}°F) 🥶 — time to layer up!`;
+}
 
 function showView(viewName) {
   const validView = [...sections].some((section) => section.dataset.view === viewName)
@@ -1460,6 +1566,7 @@ function setPracticeMode(mode) {
     button.classList.toggle("active", button.dataset.outfitMode === mode);
   });
   practiceIndices = { top: 0, bottom: 0, dress: 0, shoe: 0, layer: 0, accessory: 0 };
+  practiceActivated = { top: false, bottom: false, dress: false, shoe: false, layer: false, accessory: false };
   pickedAccessoryIds = [];
   renderPracticeCarousels();
 }
@@ -1668,16 +1775,23 @@ function buildCarousel(label, items, type, index) {
   pieceLabel.textContent = label;
   section.append(pieceLabel);
 
-  const display = items[index] || createEmptyPracticeItem(`Add a ${label.toLowerCase()}`);
+  const isActivated = practiceActivated[type];
   const isTall = type === "dress";
-
   const img = document.createElement("img");
   img.className = "carousel-image" + (isTall ? " tall" : "");
-  img.src = display.photo;
-  img.alt = display.name;
+
+  if (!isActivated) {
+    img.src = STYLE_PLACEHOLDERS[type] || STYLE_PLACEHOLDERS.top;
+    img.alt = `${label} placeholder`;
+    img.classList.add("placeholder-img");
+  } else {
+    const display = items[index] || createEmptyPracticeItem(`Add a ${label.toLowerCase()}`);
+    img.src = display.photo;
+    img.alt = display.name;
+  }
   section.append(img);
 
-  if (items.length === 0) {
+  if (isActivated && items.length === 0) {
     const empty = document.createElement("p");
     empty.className = "carousel-empty";
     empty.textContent = "No items match this vibe.";
@@ -1695,7 +1809,7 @@ function buildCarousel(label, items, type, index) {
   prevBtn.textContent = "◄";
 
   const nameSpan = document.createElement("span");
-  nameSpan.textContent = display.name;
+  nameSpan.textContent = isActivated ? (items[index]?.name || "") : "tap to browse";
 
   const nextBtn = document.createElement("button");
   nextBtn.dataset.carouselNext = type;
@@ -1722,6 +1836,8 @@ function buildAccessoriesSection() {
   label.textContent = "Accessories";
   section.append(label);
 
+  const isActivated = practiceActivated.accessory || pickedAccessoryIds.length > 0;
+
   // Picked accessories thumbnails
   if (pickedAccessoryIds.length > 0) {
     const picks = document.createElement("div");
@@ -1744,6 +1860,31 @@ function buildAccessoriesSection() {
       picks.append(thumb);
     });
     section.append(picks);
+  }
+
+  if (!isActivated) {
+    const placeholderImg = document.createElement("img");
+    placeholderImg.className = "carousel-image placeholder-img";
+    placeholderImg.src = STYLE_PLACEHOLDERS.accessory;
+    placeholderImg.alt = "Accessories placeholder";
+    section.append(placeholderImg);
+    const controls = document.createElement("div");
+    controls.className = "carousel-controls";
+    const prevBtn = document.createElement("button");
+    prevBtn.dataset.carouselPrev = "accessory";
+    prevBtn.type = "button";
+    prevBtn.setAttribute("aria-label", "Previous accessory");
+    prevBtn.textContent = "◄";
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = "tap to browse";
+    const nextBtn = document.createElement("button");
+    nextBtn.dataset.carouselNext = "accessory";
+    nextBtn.type = "button";
+    nextBtn.setAttribute("aria-label", "Next accessory");
+    nextBtn.textContent = "►";
+    controls.append(prevBtn, nameSpan, nextBtn);
+    section.append(controls);
+    return section;
   }
 
   if (accItems.length === 0) {

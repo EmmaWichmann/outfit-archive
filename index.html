@@ -8,14 +8,15 @@
       content="A private, browser-based digital wardrobe for cataloging clothes and building outfits."
     />
     <title>Outfit Archive</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚪</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=1.1.1" />
-    <script src="script.js?v=1.1.1" defer></script>
+    <link rel="stylesheet" href="style.css?v=1.1.2" />
+    <script src="script.js?v=1.1.2" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -215,6 +216,7 @@
             <p class="eyebrow">Morning routine</p>
             <h2>Style Me.</h2>
             <p>Swipe through your pieces and build today's look.</p>
+            <p class="weather-tip" id="weather-tip"></p>
           </header>
 
           <section class="practice-outfits" aria-labelledby="practice-outfits-title">
@@ -231,6 +233,12 @@
               <div class="practice-layout">
                 <nav class="vibe-tabs" id="vibe-tabs" aria-label="Outfit vibes"></nav>
                 <div class="practice-carousels" id="practice-carousels"></div>
+              </div>
+
+              <div class="style-me-actions" id="style-me-actions">
+                <button class="style-action-btn surprise-btn" type="button" data-action="surprise">✦ Surprise Me</button>
+                <button class="style-action-btn save-btn" type="button" data-action="save-look">Save the Look</button>
+                <button class="style-action-btn clear-btn" type="button" data-action="clear-look">Clear</button>
               </div>
 
               <form class="practice-save-form" id="save-practice-outfit-form">
