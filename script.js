@@ -264,6 +264,7 @@ const starterWardrobeItems = [
   createStarterItem("starter-ivory-resin-hoop-earrings", "Ivory resin hoop earrings", "Accessories", "images/closet/ivory-resin-hoop-earrings.png", ["ivory", "cream", "gold"], ["earrings", "hoops", "jewelry", "casual", "boho"]),
   createStarterItem("starter-brown-resin-hoop-earrings", "Brown resin hoop earrings", "Accessories", "images/closet/brown-resin-hoop-earrings.png", ["brown", "tortoise"], ["earrings", "hoops", "jewelry", "casual"]),
   createStarterItem("starter-black-patent-slingback-heels", "Black patent slingback heels", "Shoes", "images/closet/black-patent-slingback-heels.png", ["black"], ["heels", "slingback", "kitten heel", "dressy", "going out"]),
+  createStarterItem("starter-wild-fable-leopard-shorts", "Wild Fable leopard print shorts", "Bottoms", "images/closet/wild-fable-leopard-shorts.png", ["gray", "charcoal", "black"], ["shorts", "leopard", "animal print", "casual"]),
 ];
 
 const topCategories = ["Tops", "Short Sleeve Tops", "Long Sleeve Tops"];
